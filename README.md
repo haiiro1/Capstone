@@ -35,18 +35,18 @@ Inicialmente, el sistema será implementado como una **aplicación web**, enfoca
 ---
 
 ## 📂 Estructura Inicial del Proyecto  
--/frontend
-    --/src
-        ---/components
-        ---/pages
-        ---/assets
-    --package.json
+/frontend
+    /src
+        /components
+        /pages
+        /assets
+    package.json
 
 -/backend (pendiente)
 ...
--/docs
-    --README.md
-    --investigación.md
+/docs
+    README.md
+    investigación.md
 
 ---
 
