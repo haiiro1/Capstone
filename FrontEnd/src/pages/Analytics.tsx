@@ -1,6 +1,4 @@
-// RUTA DEL ARCHIVO: src/pages/Analytics.tsx
-
-import MainContent from "../components/MainContent"; // <- Esta ruta es correcta según tu estructura
+import MainContent from "../components/MainContent";
 
 function Analytics() {
   return (
@@ -54,7 +52,6 @@ function Analytics() {
   );
 }
 
-// OJO: En tu App.tsx importas "Analizar", así que asegúrate que el nombre coincida.
-// Cambiemos el nombre de la función a "Analizar" como lo tienes en App.tsx.
+
 const Analizar = Analytics; 
 export default Analizar;
