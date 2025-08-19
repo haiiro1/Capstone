@@ -11,7 +11,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/analizar" element={<Analizar />} />
-          <Route path="/History" element={<Historial />} />
+          <Route path="/historial" element={<Historial />} />
           
         </Route>
       </Routes>
