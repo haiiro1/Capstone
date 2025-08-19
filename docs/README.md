@@ -18,7 +18,7 @@ Inicialmente, el sistema será implementado como una **aplicación web**, enfoca
 ---
 
 ## 🛠️ Tecnologías (por ahora)  
-- **Frontend:** JavaScript, React  
+- **Frontend:** TypeScript, React, Boostrap 5 
 - **Backend:** (por definir)  
 - **Modelo de IA:** (pendiente de definición, probablemente CNN/visión por computador)  
 - **API de clima:** (pendiente de integración, ejemplo: OpenWeatherMap API)  
@@ -34,22 +34,6 @@ Inicialmente, el sistema será implementado como una **aplicación web**, enfoca
 
 ---
 
-## 📂 Estructura Inicial del Proyecto  
-/frontend
-    /src
-        /components
-        /pages
-        /assets
-    package.json
-
--/backend (pendiente)
-...
-/docs
-    README.md
-    investigación.md
-
----
-
 ## 🌍 Mercado y Monetización (pendiente)  
 Actualmente el mercado objetivo y la estrategia de monetización no están definidos. Posibles enfoques:  
 - **Agricultura**: apoyo en cultivos medianos y grandes.  
@@ -60,7 +44,7 @@ Actualmente el mercado objetivo y la estrategia de monetización no están defin
 
 ## 📅 Estado Actual del Proyecto  
 - [x] Definición inicial de la idea  
-- [ ] Desarrollo frontend en React  
+- [x] Desarrollo frontend en React  
 - [ ] Definición backend  
 - [ ] Entrenamiento del modelo de IA  
 - [ ] Integración con API de clima  
