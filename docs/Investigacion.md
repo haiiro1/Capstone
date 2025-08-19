@@ -1,0 +1,9 @@
+- Data set con imagenes de distintas plantas/cultivos: https://www.kaggle.com/datasets/mshrestha/plant-disease-augmented-dataset?select=TOMATO_TARGET_SPOT
+- Papers acerca de la idea:
+    - Feature engineering to identify plant diseases using image processing and artificial intelligence: A comprehensive review (https://www.sciencedirect.com/science/article/pii/S2772375524000856)
+    - Plant Doctor: A hybrid machine learning and image segmentation software to quantify plant damage in video footage (https://www.sciencedirect.com/science/article/abs/pii/S0263224125004531?via=ihub)
+- Apps existentest5:
+    - LeafDoctor (https://leafdoctor.org/)
+    - Agrio (https://agrio.app/agrio-protegetus-cultivoscosecha-mas/)
+    - LeafSnap (https://leafsnap.app/)
+- Documentación OpenCV: https://github.com/opencv/opencv/wiki
