@@ -22,7 +22,7 @@ function Navbar() {
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto align-items-center">
-            <li className="nav-item"><Link className={getLinkClass("/")} to="/">{getButtonSpan("/", "Home")}</Link></li>
+            <li className="nav-item"><Link className={getLinkClass("/home")} to="/home">{getButtonSpan("/home", "Home")}</Link></li>
             <li className="nav-item"><Link className={getLinkClass("/analizar")} to="/analizar">{getButtonSpan("/analizar", "Analizar")}</Link></li>
             <li className="nav-item"><Link className={getLinkClass("/historial")} to="/historial">{getButtonSpan("/historial", "Historial")}</Link></li>
             <li className="nav-item"><Link className={getLinkClass("/alertas")} to="/alertas">{getButtonSpan("/alertas", "Alertas")}</Link></li>
