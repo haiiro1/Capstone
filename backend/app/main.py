@@ -1,29 +1,31 @@
-﻿import os
-from fastapi import FastAPI
+﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.core.config import settings
+from app.api.routes import router as api_router
+from app.api.routers.auth import router as auth_router
 from fastapi.staticfiles import StaticFiles
-from .config import settings
-from .database import init_db
-from .routers import analyses
+from app.core.config import settings
+from app.api.routers.users import router as users_router
 
-app = FastAPI(title="PlantGuard API", version="1.0.0")
+
+app = FastAPI(title="PlantGuard API")
+
+
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_list,
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-STATIC_DIR = os.path.join("storage", "uploads")
-os.makedirs(STATIC_DIR, exist_ok=True)
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+@app.get("/api/health")
+def health():
+    return {"status": "ok"}
 
-app.include_router(analyses.router)
+app.include_router(api_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
+app.mount(settings.MEDIA_URL_PREFIX, StaticFiles(directory=settings.MEDIA_DIR), name="media")
+app.include_router(users_router, prefix="/api")
 
-@app.get("/v1/health")
-def health(): return {"status":"ok"}
-
-@app.on_event("startup")
-def on_startup(): init_db()
