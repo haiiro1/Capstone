@@ -1,10 +1,9 @@
-// src/pages/Auth/Login.tsx
+
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
-// usa el import relativo si no configuraste el alias "@"
 import api, { extractErrorMessage, TOKEN_KEY } from "../../lib/api";
 
 
@@ -15,7 +14,6 @@ const loginSchema = z.object({
   password: z.string().min(1, "La contraseña es obligatoria"),
 });
 
-// tipo para TS a partir del schema (o lo declaras manual)
 type LoginForm = z.infer<typeof loginSchema>;
 
 function Login() {
@@ -40,7 +38,7 @@ function Login() {
       localStorage.setItem(TOKEN_KEY, access_token);
        api.defaults.headers.common.Authorization = `Bearer ${access_token}`;
 
-      // 🔥 trae el usuario actual y guárdalo
+      //trae el usuario actual y lo guarda
       const me = await api.get("/api/auth/me");
       localStorage.setItem("pg_user", JSON.stringify(me.data));
 

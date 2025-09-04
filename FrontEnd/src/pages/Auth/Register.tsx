@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import api, { extractErrorMessage } from "../../lib/api"; // ajusta si usas alias @
+import api, { extractErrorMessage } from "../../lib/api"; 
 import { splitFullName } from "../../utils/names";
 
 const PASSWORD_MIN = 8;

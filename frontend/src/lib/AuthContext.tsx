@@ -36,7 +36,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     const { data } = await api.post("/auth/login", { email, password });
     setToken(data.access_token);
-    // si tu backend expone /auth/me, puedes llamar y setUser(await api.get(...))
   };
 
   const register = async (payload: {
