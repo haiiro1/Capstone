@@ -5,8 +5,6 @@ import os, sys
 from sqlalchemy import create_engine, pool
 from alembic import context
 
-# === asegurar que Python vea el proyecto ===
-# /app/alembic -> /app (raíz) y /app/app (paquete)
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(THIS_DIR, ".."))
 PKG_DIR  = os.path.join(ROOT_DIR, "app")
@@ -15,7 +13,6 @@ for p in (ROOT_DIR, PKG_DIR):
     if p not in sys.path:
         sys.path.insert(0, p)
 
-# ahora ya podemos importar
 from app.core.config import settings
 from app.db.base import Base
 

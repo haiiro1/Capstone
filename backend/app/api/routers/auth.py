@@ -7,7 +7,7 @@ from jose import JWTError
 from app.schemas.user import UserCreate, UserLogin, UserOut
 from app.schemas.auth import TokenOut, MessageOut
 from app.db.session import SessionLocal
-from app.db.models import User  # ajusta si tu User está en otro módulo
+from app.db.models import User 
 from app.core.security import (
     get_password_hash,
     verify_password,
@@ -17,7 +17,7 @@ from app.core.security import (
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-# --- DB session dep
+# DB session dep
 def get_db():
     db = SessionLocal()
     try:
@@ -25,7 +25,7 @@ def get_db():
     finally:
         db.close()
 
-# --- OAuth2 bearer (para leer Authorization: Bearer <token>)
+# OAuth2 bearer (para leer Authorization: Bearer <token>)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 def get_current_user(
@@ -43,7 +43,7 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="Usuario no encontrado")
     return user
 
-# --- Endpoints
+# Endpoints
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register(payload: UserCreate, db: Session = Depends(get_db)):
@@ -54,7 +54,7 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
         email=payload.email,
         first_name=payload.first_name,
         last_name=payload.last_name,
-        # usa el nombre real de tu columna: password_hash o hashed_password
+        # usa el nombre real de la columna: password_hash o hashed_password
         password_hash=get_password_hash(payload.password),
     )
     db.add(user)
@@ -73,11 +73,11 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Credenciales inválidas.")
 
     token = create_access_token(sub=str(user.id))
-    return TokenOut(access_token=token)  # token_type="bearer" lo pone el modelo
+    return TokenOut(access_token=token)  # token_type="bearer" 
 
 @router.post("/refresh", response_model=TokenOut)
 def refresh(current_user: User = Depends(get_current_user)):
-    # Si el token actual es válido, emitimos uno nuevo
+    # Si el token actual es válido, emite uno nuevo
     token = create_access_token(sub=str(current_user.id))
     return TokenOut(access_token=token)
 

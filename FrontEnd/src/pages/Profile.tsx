@@ -7,7 +7,7 @@ type User = {
   email: string;
   first_name: string;
   last_name: string;
-  // NUEVO: campos opcionales que puede devolver el backend
+  // campos opcionales que puede devolver el backend
   company?: string | null;
   location?: string | null;
   crops?: string[] | null;
@@ -27,7 +27,7 @@ function Profile() {
   const [user, setUser] = useState<User | null>(null);
   const [extras, setExtras] = useState<ProfileExtras>({});
 
-  // NUEVO: soporte avatar
+  // soporte avatar
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -46,7 +46,7 @@ function Profile() {
       try {
         const parsed = JSON.parse(cached) as User;
         setUser(parsed);
-        // NUEVO: si no hay LS_PROFILE, toma los valores desde el user cacheado
+        // si no hay LS_PROFILE, toma los valores desde el user cacheado
         const ex = localStorage.getItem(LS_PROFILE);
         if (!ex) {
           setExtras({
@@ -63,7 +63,7 @@ function Profile() {
       .then((r) => {
         setUser(r.data);
         localStorage.setItem(LS_USER, JSON.stringify(r.data));
-        // NUEVO: actualiza extras desde backend si existen y no hay LS_PROFILE
+        // actualiza extras desde backend si existen y no hay LS_PROFILE
         const ex = localStorage.getItem(LS_PROFILE);
         if (!ex) {
           setExtras({
@@ -75,7 +75,7 @@ function Profile() {
       })
       .catch(() => {});
 
-    // si había perfil en LS, respétalo (tu lógica original)
+    // si hay perfil en LS
     const ex = localStorage.getItem(LS_PROFILE);
     if (ex) {
       try {
@@ -115,7 +115,6 @@ function Profile() {
     setExtras(next);
     localStorage.setItem(LS_PROFILE, JSON.stringify(next));
 
-    // NUEVO: persiste también en el backend
     try {
       const { data } = await api.patch<User>("/api/users/me", {
         company: next.company ?? null,
@@ -125,11 +124,11 @@ function Profile() {
       setUser(data);
       localStorage.setItem(LS_USER, JSON.stringify(data));
     } catch {
-      // silencioso: tu UI original no muestra errores aquí
+      
     }
   };
 
-  // NUEVO: subir avatar (manteniendo tu estructura)
+  // subir avatar 
   const handleAvatarChange = async (file?: File) => {
     if (!file) return;
     const blobUrl = URL.createObjectURL(file);
@@ -137,13 +136,12 @@ function Profile() {
     setUploading(true);
     try {
       const fd = new FormData();
-      fd.append("file", file); // 👈 minúscula, igual al parámetro del backend
-      const { data } = await api.post<User>("/api/users/me/avatar", fd); // sin headers extra
+      fd.append("file", file); 
+      const { data } = await api.post<User>("../api/users/me/avatar", fd);
       setUser(data);
       localStorage.setItem(LS_USER, JSON.stringify(data));
       setAvatarPreview(null);
     } catch {
-      // no-op para mantener tu UX
     } finally {
       setUploading(false);
       URL.revokeObjectURL(blobUrl);
@@ -165,7 +163,7 @@ function Profile() {
                   className="rounded-circle bg-light d-flex align-items-center justify-content-center me-4 position-relative"
                   style={{ width: 80, height: 80, overflow: "hidden" }}
                 >
-                  {/* NUEVO: muestra imagen si existe o preview; si no, iniciales */}
+                  {/* muestra imagen si existe o preview; si no, iniciales */}
                   {avatarPreview ? (
                     <img
                       src={avatarPreview}
@@ -182,7 +180,7 @@ function Profile() {
                     <span className="fs-3 fw-bold text-secondary">{initials}</span>
                   )}
 
-                  {/* NUEVO: input de archivo discreto */}
+                  {/* input de archivo discreto */}
                   <label
                     className="btn btn-sm btn-outline-secondary position-absolute bottom-0 start-50 translate-middle-x"
                     style={{ lineHeight: 1 }}
