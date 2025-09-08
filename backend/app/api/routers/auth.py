@@ -3,7 +3,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from jose import JWTError
-
 from app.schemas.user import UserCreate, UserLogin, UserOut
 from app.schemas.auth import TokenOut, MessageOut
 from app.db.session import SessionLocal
@@ -14,6 +13,8 @@ from app.core.security import (
     create_access_token,
     decode_token,
 )
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -47,33 +48,32 @@ def get_current_user(
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register(payload: UserCreate, db: Session = Depends(get_db)):
-    if db.query(User).filter(User.email == payload.email).first():
+    # email único
+    if db.execute(select(User).where(User.email == payload.email)).scalar_one_or_none():
         raise HTTPException(status_code=409, detail="El email ya está registrado.")
 
     user = User(
         email=payload.email,
         first_name=payload.first_name,
         last_name=payload.last_name,
-        # usa el nombre real de la columna: password_hash o hashed_password
         password_hash=get_password_hash(payload.password),
     )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+    try:
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="El email ya está registrado.")
     return user
 
 @router.post("/login", response_model=TokenOut)
 def login(payload: UserLogin, db: Session = Depends(get_db)):
-    user: User | None = db.query(User).filter(User.email == payload.email).first()
-    if not user:
+    user = db.query(User).filter(User.email == payload.email).first()
+    if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Credenciales inválidas.")
-
-    hashed = getattr(user, "password_hash", None) or getattr(user, "hashed_password", None)
-    if not hashed or not verify_password(payload.password, hashed):
-        raise HTTPException(status_code=401, detail="Credenciales inválidas.")
-
-    token = create_access_token(sub=str(user.id))
-    return TokenOut(access_token=token)  # token_type="bearer" 
+    token = create_access_token(sub=str(user.id))  # sub=ID como str
+    return TokenOut(access_token=token)  # token_type="bearer"
 
 @router.post("/refresh", response_model=TokenOut)
 def refresh(current_user: User = Depends(get_current_user)):

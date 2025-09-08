@@ -12,17 +12,21 @@ from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 from app.core.config import settings
 
-
 app = FastAPI(title="PlantGuard API")
-
-
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
+    max_age= 86400,
 )
 
 def get_db():
@@ -45,4 +49,3 @@ app.include_router(api_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.mount(settings.MEDIA_URL_PREFIX, StaticFiles(directory=settings.MEDIA_DIR), name="media")
 app.include_router(users_router, prefix="/api")
-
