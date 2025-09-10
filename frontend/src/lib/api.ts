@@ -1,32 +1,22 @@
-// src/lib/api.ts
+
 import axios from "axios";
 
 export const TOKEN_KEY = "pg_token";
 
-/**
- * Resuelve la baseURL:
- * - En dev (vite dev server): usa http://localhost:8000 por defecto
- *   o lo que pongas en VITE_API_URL.
- * - En build/prod: exige VITE_API_URL (Render, https).
- */
 function resolveBaseURL() {
   const envUrl = import.meta.env.VITE_API_URL?.trim();
   if (import.meta.env.DEV) {
-    const devUrl = (envUrl || "http://localhost:8000").replace(/\/+$/, "");
-    return devUrl;
+    // usa la env si existe; si no, localhost:8000
+    return (envUrl || "http://localhost:8000").replace(/\/+$/, "");
   }
-  // PROD: no caigas en localhost jamás
-  if (!envUrl) {
-    console.error("VITE_API_URL no está definido en producción.");
-    return ""; // fuerza error visible si se usa sin configurar
-  }
+  // en build/prod (por si algún día haces vercel)
+  if (!envUrl) return "";
   return envUrl.replace(/\/+$/, "");
 }
 
 const api = axios.create({
   baseURL: resolveBaseURL(),
   headers: { "Content-Type": "application/json" },
-  withCredentials: false,
 });
 
 // ——— Interceptor de request: token + FormData ———
