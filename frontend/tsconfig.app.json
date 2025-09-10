@@ -15,7 +15,6 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* 👇 Agrega esto */
     "types": ["react", "react-dom"],
 
     /* Linting */
