@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from pydantic.config import ConfigDict
 
 class TokenOut(BaseModel):
@@ -7,15 +7,6 @@ class TokenOut(BaseModel):
 
 class MessageOut(BaseModel):
     message: str
-    
-class RegisterIn(BaseModel):
-    email: EmailStr
-    password: str
-    first_name: str
-    last_name: str
-
-class RegisterOut(BaseModel):
-    message: str = "registered"
 
 # (opcional) Si algún día  quieren devuelvolver al user junto con el token:
 # class AuthResponse(TokenOut):
