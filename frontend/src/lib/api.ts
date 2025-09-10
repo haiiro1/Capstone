@@ -9,7 +9,7 @@ function resolveBaseURL() {
     // usa la env si existe; si no, localhost:8000
     return (envUrl || "http://localhost:8000").replace(/\/+$/, "");
   }
-  // en build/prod (por si algún día haces vercel)
+  // en build/prod (para hacer vercel)
   if (!envUrl) return "";
   return envUrl.replace(/\/+$/, "");
 }
