@@ -7,7 +7,6 @@ Create Date: 2025-09-01 23:09:58.499976
 """
 from typing import Sequence, Union
 
-from sqlalchemy import text
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
@@ -35,8 +34,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
-    op.execute(text('DROP TABLE IF EXISTS analysis CASCADE'))
-
+    op.drop_table('analysis')
     # ### end Alembic commands ###
 
 
