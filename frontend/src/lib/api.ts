@@ -1,18 +1,47 @@
+// src/lib/api.ts
 import axios from "axios";
 
 export const TOKEN_KEY = "pg_token";
 
+/**
+ * Resuelve la baseURL:
+ * - En dev (vite dev server): usa http://localhost:8000 por defecto
+ *   o lo que pongas en VITE_API_URL.
+ * - En build/prod: exige VITE_API_URL (Render, https).
+ */
+function resolveBaseURL() {
+  const envUrl = import.meta.env.VITE_API_URL?.trim();
+  if (import.meta.env.DEV) {
+    const devUrl = (envUrl || "http://localhost:8000").replace(/\/+$/, "");
+    return devUrl;
+  }
+  // PROD: no caigas en localhost jamás
+  if (!envUrl) {
+    console.error("VITE_API_URL no está definido en producción.");
+    return ""; // fuerza error visible si se usa sin configurar
+  }
+  return envUrl.replace(/\/+$/, "");
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
+  baseURL: resolveBaseURL(),
+  headers: { "Content-Type": "application/json" },
+  withCredentials: false,
 });
 
-
+// ——— Interceptor de request: token + FormData ———
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem(TOKEN_KEY);
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (token) {
+    config.headers = config.headers ?? {};
+    (config.headers as any).Authorization = `Bearer ${token}`;
+  }
 
   const isFormData =
     typeof FormData !== "undefined" && config.data instanceof FormData;
+
+  // Si NO es FormData, fuerza application/json (evita multipart inesperado)
+  config.headers = config.headers ?? {};
   if (isFormData) {
     delete (config.headers as any)["Content-Type"];
   } else {
@@ -22,10 +51,12 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// ——— Interceptor de response: 401 cleanup ———
 api.interceptors.response.use(
   (r) => r,
   (err) => {
-    if (err?.response?.status === 401) {
+    const status = err?.response?.status;
+    if (status === 401) {
       localStorage.removeItem(TOKEN_KEY);
       if (location.pathname !== "/") location.href = "/";
     }
@@ -33,13 +64,20 @@ api.interceptors.response.use(
   }
 );
 
-
+// ——— Helper robusto para mensajes de error ———
 export function extractErrorMessage(err: any): string {
-  if (err?.response?.data?.detail) return String(err.response.data.detail);
-  if (err?.response?.status) return `Error ${err.response.status}`;
+  const r = err?.response;
+  // pydantic/fastapi suelen mandar { detail: "..."} o { detail: [{msg, loc, ...}, ...] }
+  const detail = r?.data?.detail ?? r?.data?.message ?? r?.data?.error;
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail) && detail.length) {
+    const first = detail[0];
+    if (typeof first === "string") return first;
+    if (first?.msg) return String(first.msg);
+  }
+  if (r?.status) return `Error ${r.status}`;
   if (err?.message === "Network Error") return "No se pudo contactar la API";
   return err?.message || "Error desconocido";
 }
-
 
 export default api;
