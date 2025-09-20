@@ -1,69 +1,119 @@
-# React + TypeScript + Vite
+# PlantGuard - Frontend (React + TSX + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Frontend de PlantGuard desarrollado con React y TypeScript (TSX) usando Vite. Este proyecto no usa Docker en frontend; se ejecuta localmente con Node.js.
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Node.js 18+
 
-## Expanding the ESLint configuration
+- npm (o yarn/pnpm)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Variables de entorno
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Crear frontend/.env con:
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+```
+VITE_API_URL=http://localhost:8000
+VITE_APP_NAME=PlantGuard
+```
+ En Vite, las variables deben comenzar con VITE_ para estar disponibles en el cliente.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Ejecución local
+
+### Instalar dependencias:
+```
+cd frontend
+npm install
+```
+### Desarrollo (hot reload):
+```
+npm run dev
+```
+### Aplicación en:
+```
+http://localhost:5173
+```
+### Build de producción:
+```
+npm run build
+```
+### Previsualizar build localmente:
+```
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Scripts (package.json)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Asegúrate de tener:
 ```
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 4173"
+  }
+}
+```
+
+## Estructura del proyecto
+
+```
+frontend/
+├─ public/
+├─ src/
+│  ├─ assets/
+│  │  └─ react.svg
+│  ├─ components/
+│  │  ├─ AuthPanel.tsx
+│  │  ├─ Footer.tsx
+│  │  ├─ MainContent.tsx
+│  │  └─ NavBars.tsx
+│  ├─ Layouts/
+│  │  ├─ AuthLayout.tsx
+│  │  └─ MainLayout.tsx
+│  ├─ lib/
+│  │  ├─ api.ts
+│  │  └─ AuthContext.tsx
+│  ├─ pages/
+│  │  ├─ Auth/
+│  │  ├─ Alerts.tsx
+│  │  ├─ Analytics.tsx
+│  │  ├─ History.tsx
+│  │  ├─ Home.tsx
+│  │  ├─ Profile.tsx
+│  │  └─ Upload.tsx
+│  ├─ utils/
+│  │  └─ names.ts
+│  └─ validation/
+│     └─ userSchemas.ts
+├─ App.tsx
+├─ App.css
+├─ index.css
+├─ main.tsx
+├─ vite-env.d.ts
+├─ index.html
+├─ package.json
+├─ tsconfig.json
+├─ tsconfig.app.json
+├─ tsconfig.node.json
+└─ vite.config.ts
+```
+
+## Integración con el backend
+- `VITE_API_URL` debe apuntar a tu API (por defecto `http://localhost:8000`)
+
+- Para despliegue, cambia `VITE_API_URL` a la URL pública del backend.
+## Problemas comunes
+- Variables `.env` no cargan: reinicia `npm run dev` y confirma el prefijo `VITE_`.
+
+- CORS: habilita `http://localhost:5173` en el backend (`CORS_ORIGINS`).
+
+- Puerto ocupado: ejecuta `npm run dev -- --port 5174` o libera el 5173.
+
+## Rutas principales
+- `/` → Dashboard/Home
+
+- `/login` y `/register` (dentro de `pages/Auth/`)
+
+- `/alerts`, `/analytics`, `/history`, `/profile`, `/upload`
+

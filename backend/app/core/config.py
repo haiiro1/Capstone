@@ -5,9 +5,8 @@ import json, os
 
 class Settings(BaseSettings):
     CORS_ORIGINS: list[str] = []
-    # Si usas DATABASE_URL en .env, solo se declara el campo
     DATABASE_URL: str
-    MEDIA_DIR: str = "/app/storage/uploads"
+    MEDIA_DIR: str = "C:/Users/alumnos/Documents/GitHub/Capstone/backend/storage/uploads"
     MEDIA_URL_PREFIX: str = "/media"
     # 🔐 JWT
     SECRET_KEY: str = "change_me_in_.env"
