@@ -20,7 +20,10 @@ def center_crop_to_square(img_pil):
 
 def load_and_prepare(path):
     pil = kimage.load_img(path)
-    pil = center_crop_to_square(pil).resize((INPUT_SIZE, INPUT_SIZE))
+    if pil.size[0] != INPUT_SIZE and pil.size[1] != INPUT_SIZE:
+        pil = center_crop_to_square(pil).resize((INPUT_SIZE, INPUT_SIZE))
+    else:
+        pass
     arr = img_to_array(pil)
     arr = np.expand_dims(arr, axis =0)
 
@@ -47,7 +50,7 @@ def main():
     with open('class_names.json', 'r') as file:
         class_labels = json.load(file)
 
-    img_path = "./Unknown_predictions/mosaic.jpg"
+    img_path = "./output/test/TOMATO_HEALTHY/Tomato_healthy3779.jpg"
     x = load_and_prepare(img_path)
     top3 = predict_topk(model,x, class_labels)
 
