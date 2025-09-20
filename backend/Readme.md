@@ -50,7 +50,7 @@ backend/
 ### Crear el archivo `backend/.env` con las siguientes variables:
 
 ```
-CORS_ORIGINS=["http://localhost:5173","http://localhost:3000"]
+CORS_ORIGINS=["http://localhost:5173","http://127.0.0.1:5173","http://localhost:3000"]
 MAX_IMAGE_MB=10
 MIN_IMAGE_PX=256
 MODEL_VERSION=v0.1.0
@@ -58,9 +58,10 @@ MODEL_VERSION=v0.1.0
 POSTGRES_DB=plantguard
 POSTGRES_USER=plantguard
 POSTGRES_PASSWORD=plantguard
-DATABASE_URL=postgresql+psycopg2://plantguard:plantguard@db:5432/plantguard
+# Neon
+DATABASE_URL='postgresql://neondb_owner:npg_1OZ3bgmpCIkd@ep-lingering-darkness-ackvhvh8-pooler.sa-east-1.aws.neon.tech/PlantGuard_DB?sslmode=require&channel_binding=require'
 
-
+VITE_API_BASE_URL=http://127.0.0.1:8000/api
 SECRET_KEY=super-super-secret
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
