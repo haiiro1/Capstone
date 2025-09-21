@@ -1,1 +1,7 @@
 models-env
+img
+output
+output/test
+output/train
+output/val
+Unknown_predictions
