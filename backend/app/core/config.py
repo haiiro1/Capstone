@@ -8,6 +8,7 @@ import os
 class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: list[str] = [] 
+    ALLOW_ORIGIN_REGEX: str | None = None
     
     # DB
     DATABASE_URL: str
@@ -21,26 +22,17 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
 
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_ignore_empty=True,
-        extra="ignore",
-    )
+    model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True, extra="ignore")
+
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def _parse_cors(cls, v):
-        if v is None: 
-            return []
-        if isinstance(v, list): 
-            return v
+        if v is None: return []
+        if isinstance(v, list): return v
         s = str(v).strip()
-        if s in ("", "[]"): 
-            return []
-        if s.startswith("["): 
-            # admite JSON en .env: '["http://localhost:5173","https://..."]'
-            return json.loads(s)
-        # admite CSV en .env: "http://localhost:5173, https://..."
+        if s in ("", "[]"): return []
+        if s.startswith("["): return json.loads(s)
         return [x.strip() for x in s.split(",") if x.strip()]
 
 settings = Settings()
