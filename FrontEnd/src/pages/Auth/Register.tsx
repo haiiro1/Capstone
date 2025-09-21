@@ -138,7 +138,14 @@ function Register() {
             {...register("terms")}
           />
           <label className="form-check-label" htmlFor="terms">
-            Acepto los <a href="#!">Términos</a> y la <a href="#!">Política de privacidad</a>
+            Acepto los{" "}
+            <Link to="/terminos" target="_blank" rel="noopener noreferrer">
+              Términos
+            </Link>{" "}
+            y la{" "}
+            <Link to="/privacidad" target="_blank" rel="noopener noreferrer">
+              Política de privacidad
+            </Link>
           </label>
           {errors.terms && (
             <div className="invalid-feedback d-block">{errors.terms.message}</div>

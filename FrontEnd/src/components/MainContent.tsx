@@ -1,4 +1,6 @@
 import { type ReactNode } from "react";
+import { Link } from "react-router-dom";
+
 interface MainContentProps {
   title: string;
   children: ReactNode;
@@ -10,8 +12,9 @@ function MainContent({ title, children }: MainContentProps) {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="fw-bold">{title}</h2>
         <div>
-          <button className="btn btn-light me-2">Feedback</button>
-          <button className="btn btn-light">Ayuda</button>
+          <Link to="/ayuda" className="btn btn-light">
+            Ayuda
+          </Link>
         </div>
       </div>
       <div>{children}</div>
