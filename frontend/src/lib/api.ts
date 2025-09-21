@@ -5,13 +5,18 @@ export const TOKEN_KEY = "pg_token";
 
 function resolveBaseURL() {
   const envUrl = import.meta.env.VITE_API_URL?.trim();
+  const clean = (u: string) => u.replace(/\/+$/, "");
+
   if (import.meta.env.DEV) {
-    // usa la env si existe; si no, localhost:8000
-    return (envUrl || "http://localhost:8000").replace(/\/+$/, "");
+    return clean(envUrl || "http://localhost:8000");
   }
-  // en build/prod (para hacer vercel)
-  if (!envUrl) return "";
-  return envUrl.replace(/\/+$/, "");
+
+  // En build/prod exige que esté seteada
+  if (!envUrl) {
+    console.error("[API] VITE_API_URL no está configurada en producción");
+    throw new Error("VITE_API_URL no configurada");
+  }
+  return clean(envUrl);
 }
 
 const api = axios.create({

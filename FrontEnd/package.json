@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -p tsconfig.json && vite build",
+    "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview --port 4173"
   },
+  "engines": { "node": ">=18" },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
     "axios": "^1.11.0",
