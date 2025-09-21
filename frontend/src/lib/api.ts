@@ -8,7 +8,7 @@ function resolveBaseURL() {
   const clean = (u: string) => u.replace(/\/+$/, "");
 
   if (import.meta.env.DEV) {
-    return clean(envUrl || "http://localhost:8000");
+    return clean(envUrl || "http://localhost:8000/api");
   }
 
   // En build/prod exige que esté seteada
