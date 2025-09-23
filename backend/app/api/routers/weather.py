@@ -5,7 +5,7 @@ from app.api.services.weather_service import get_current_weather
 
 router = APIRouter()
 
-@router.get("/weather/current")
+@router.get("/alerts/weather/now")
 async def read_current_weather(lat: float, lon: float):
     weather_data = await get_current_weather(lat, lon)
     

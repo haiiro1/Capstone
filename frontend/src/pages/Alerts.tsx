@@ -19,8 +19,7 @@ function Alerts() {
     const fetchWeather = async () => {
       try {
         setLoading(true);
-        // Coordenadas de ejemplo (Santiago). Próximamente: Modificar para obtener del perfil del usuario.
-        const response = await api.get("/api/weather/current?lat=-33.45&lon=-70.66");
+        const response = await api.get("/api/alerts/weather/now?lat=-33.45&lon=-70.66");
         setWeather(response.data);
       } catch (err) {
         setError("No se pudo cargar la información del clima en este momento.");

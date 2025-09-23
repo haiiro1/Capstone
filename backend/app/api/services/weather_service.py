@@ -5,11 +5,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 OPENWEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
-OPENWEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
+OPENWEATHER_URL = os.getenv("OPENWEATHER_URL")
 
 async def get_current_weather(lat: float, lon: float):
     if not OPENWEATHER_API_KEY:
-        # Esto es un control de seguridad por si olvidaste poner la llave
+        # Control de seguridad
         return {"error": "Weather API key not configured"}
 
     # Parámetros que le enviaremos a la API de OpenWeatherMap
@@ -31,7 +31,7 @@ async def get_current_weather(lat: float, lon: float):
 
     data = response.json()
 
-    # Procesamos la respuesta para devolver solo lo que nos interesa
+    # Procesamos la respuesta
     processed_data = {
         "temp": data["main"]["temp"],
         "condition": data["weather"][0]["description"],
