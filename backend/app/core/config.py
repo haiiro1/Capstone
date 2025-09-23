@@ -38,13 +38,6 @@ class Settings(BaseSettings):
 settings = Settings()
 
 # --------- Post-procesado / defaults seguros ---------
-# 1) Defaults de CORS si no llegó nada por .env
-if not settings.CORS_ORIGINS:
-    settings.CORS_ORIGINS = [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "https://example.vercel.app"  # <- reemplázar por el .env de Render
-    ]
 
 # 2) Normaliza MEDIA_URL_PREFIX (debe iniciar con "/")
 if not settings.MEDIA_URL_PREFIX.startswith("/"):
@@ -53,6 +46,3 @@ if not settings.MEDIA_URL_PREFIX.startswith("/"):
 # 3) Asegura que exista el directorio de media
 Path(settings.MEDIA_DIR).mkdir(parents=True, exist_ok=True)  # <- evita error en Render
 
-# 4) Validación explícita de DATABASE_URL (mejor falla claro)
-if not settings.DATABASE_URL:
-    raise RuntimeError("DATABASE_URL no está configurada. Define la variable en tu .env / Render.")
