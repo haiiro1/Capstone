@@ -19,6 +19,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 function Login() {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -76,16 +77,25 @@ function Login() {
 
         <div className="mb-3">
           <label htmlFor="password" className="form-label">Contraseña</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="********"
-            className={`form-control ${errors.password ? "is-invalid" : ""}`}
-            {...register("password")}
-          />
-          {errors.password && (
-            <div className="invalid-feedback">{errors.password.message}</div>
-          )}
+          <div className="input-group">
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              placeholder="********"
+              className={`form-control ${errors.password ? "is-invalid" : ""}`}
+              {...register("password")}
+            />
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+            </button>
+            {errors.password && (
+              <div className="invalid-feedback">{errors.password.message}</div>
+            )}
+          </div>
         </div>
 
         <div className="d-flex justify-content-between align-items-center mb-3">
