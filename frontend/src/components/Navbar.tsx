@@ -1,17 +1,25 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation,useNavigate } from "react-router-dom";
+import { TOKEN_KEY } from "../lib/api";
 
 function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const getLinkClass = (path: string) =>
     location.pathname === path ? "nav-link active" : "nav-link";
 
   const getButtonSpan = (path: string, text: string) =>
     location.pathname === path ? <span className="btn btn-dark btn-sm">{text}</span> : text;
 
+  const handleLogout = () => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem("pg_user");
+     navigate("/");
+  };
+
   return (
     <nav className="navbar navbar-expand-lg bg-white border-bottom shadow-sm">
       <div className="container">
-        <Link className="navbar-brand fw-bold" to="/">🌱 PlantGuard</Link>
+        <Link className="navbar-brand fw-bold" to="/home">🌱 PlantGuard</Link>
         <button
           className="navbar-toggler"
           type="button"

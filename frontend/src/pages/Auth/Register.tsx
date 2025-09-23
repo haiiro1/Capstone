@@ -30,7 +30,8 @@ type RegisterForm = z.infer<typeof schema>;
 
 function Register() {
   const navigate = useNavigate();
-  const [serverError, setServerError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -104,30 +105,47 @@ function Register() {
 
         <div className="mb-3">
           <label htmlFor="password" className="form-label">Contraseña</label>
-          <input
-            type="password"
-            className={`form-control ${errors.password ? "is-invalid" : ""}`}
-            id="password"
-            placeholder="********"
-            {...register("password")}
-          />
-          {errors.password && (
-            <div className="invalid-feedback">{errors.password.message}</div>
-          )}
+          <div className="input-group">
+            <input
+              type={showPassword ? "text" : "password"}
+              className={`form-control ${errors.password ? "is-invalid" : ""}`}
+              id="password"
+              placeholder="********"
+              {...register("password")}
+            />
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+            </button>
+            {errors.password && (
+              <div className="invalid-feedback">{errors.password.message}</div>
+            )}
+          </div>
         </div>
-
         <div className="mb-3">
           <label htmlFor="confirmPassword" className="form-label">Confirmar contraseña</label>
-          <input
-            type="password"
-            className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
-            id="confirmPassword"
-            placeholder="********"
-            {...register("confirmPassword")}
-          />
-          {errors.confirmPassword && (
-            <div className="invalid-feedback">{errors.confirmPassword.message}</div>
-          )}
+          <div className="input-group">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
+              id="confirmPassword"
+              placeholder="********"
+              {...register("confirmPassword")}
+            />
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              <i className={`bi ${showConfirmPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+            </button>
+            {errors.confirmPassword && (
+              <div className="invalid-feedback">{errors.confirmPassword.message}</div>
+            )}
+          </div>  
         </div>
 
         <div className="form-check mb-3">
