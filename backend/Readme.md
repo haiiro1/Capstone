@@ -104,8 +104,47 @@ ACCESS_TOKEN_EXPIRE_MINUTES=1440
 
 ### Con Docker (recomendado)
 
-Los archivos de despliegue están en backend/deploy/:
+Los archivos de despliegue están en backend/deploy/.
 
+Ejemplo de docker-compose.yml:
+
+```
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: plantguard_db
+    restart: always
+    environment:
+      POSTGRES_DB: plantguard
+      POSTGRES_USER: plantguard
+      POSTGRES_PASSWORD: plantguard
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: plantguard_api
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - ../.env
+    volumes:
+      - ../storage/uploads:/app/storage/uploads
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  pgdata:
+```
+Para levantar todo:
 ```
 cd backend/deploy
 docker compose up --build
