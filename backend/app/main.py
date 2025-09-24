@@ -10,8 +10,8 @@ from app.core.config import settings
 from app.api.routes import router as api_router
 from app.api.routers.auth import router as auth_router
 from app.api.routers.users import router as users_router
+from app.api.routers.weather import router as weather_router
 from app.db.session import SessionLocal
-
 
 
 app = FastAPI(title="PlantGuard API", version="1.0.0")
@@ -59,9 +59,10 @@ def db_check(db: Session = Depends(get_db)):
 app.include_router(api_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
+app.include_router(weather_router, prefix="/api", tags=["Weather"])
+
 
 # --- Archivos estáticos (Revisar que exista la carpeta) ---
 # settings.MEDIA_URL_PREFIX debe empezar con "/" (ej. "/media")
 # settings.MEDIA_DIR debe existir en runtime
 app.mount(settings.MEDIA_URL_PREFIX, StaticFiles(directory=settings.MEDIA_DIR), name="media")
-
