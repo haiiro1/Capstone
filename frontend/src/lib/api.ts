@@ -33,7 +33,7 @@ api.interceptors.request.use((config) => {
   }
 
   const isFormData =
-    typeof FormData !== "undefined" && config.data instanceof FormData;
+  typeof FormData !== "undefined" && config.data instanceof FormData;
 
   // Si NO es FormData, fuerza application/json (evita multipart inesperado)
   config.headers = config.headers ?? {};
