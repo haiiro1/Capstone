@@ -7,16 +7,16 @@ import os
 
 class Settings(BaseSettings):
     # CORS
-    CORS_ORIGINS: list[str] = [] 
+    CORS_ORIGINS: list[str] = []
     ALLOW_ORIGIN_REGEX: str | None = None
-    
+
     # DB
     DATABASE_URL: str
-    
+
     # Archivos estáticos / media
     MEDIA_DIR: str = str(Path("storage/uploads"))  # <- ruta relativa portable (Linux/Windows)
-    MEDIA_URL_PREFIX: str = "/media"               
-    
+    MEDIA_URL_PREFIX: str = "/media"
+
     # 🔐 JWT
     SECRET_KEY: str = "change_me_in_.env"
     ALGORITHM: str = "HS256"

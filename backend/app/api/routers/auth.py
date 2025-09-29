@@ -54,7 +54,6 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
         email=payload.email,
         first_name=payload.first_name,
         last_name=payload.last_name,
-        # usa el nombre real de la columna: password_hash o hashed_password
         password_hash=get_password_hash(payload.password),
     )
     db.add(user)
@@ -73,7 +72,7 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Credenciales inválidas.")
 
     token = create_access_token(sub=str(user.id))
-    return TokenOut(access_token=token)  # token_type="bearer" 
+    return TokenOut(access_token=token)  # token_type="bearer"
 
 @router.post("/refresh", response_model=TokenOut)
 def refresh(current_user: User = Depends(get_current_user)):
