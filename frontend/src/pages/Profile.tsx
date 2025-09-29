@@ -124,11 +124,11 @@ function Profile() {
       setUser(data);
       localStorage.setItem(LS_USER, JSON.stringify(data));
     } catch {
-      
+
     }
   };
 
-  // subir avatar 
+  // subir avatar
   const handleAvatarChange = async (file?: File) => {
     if (!file) return;
     const blobUrl = URL.createObjectURL(file);
@@ -136,7 +136,7 @@ function Profile() {
     setUploading(true);
     try {
       const fd = new FormData();
-      fd.append("file", file); 
+      fd.append("file", file);
       const { data } = await api.post<User>("../api/users/me/avatar", fd);
       setUser(data);
       localStorage.setItem(LS_USER, JSON.stringify(data));

@@ -7,7 +7,7 @@ from jose import JWTError
 from app.schemas.user import UserCreate, UserLogin, UserOut
 from app.schemas.auth import TokenOut, MessageOut
 from app.db.session import SessionLocal
-from app.db.models import User 
+from app.db.models import User
 from app.core.security import (
     get_password_hash,
     verify_password,
@@ -17,6 +17,7 @@ from app.core.security import (
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+
 # DB session dep
 def get_db():
     db = SessionLocal()
@@ -25,8 +26,10 @@ def get_db():
     finally:
         db.close()
 
+
 # OAuth2 bearer (para leer Authorization: Bearer <token>)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+
 
 def get_current_user(
     token: str = Depends(oauth2_scheme),
@@ -43,7 +46,9 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="Usuario no encontrado")
     return user
 
+
 # Endpoints
+
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register(payload: UserCreate, db: Session = Depends(get_db)):
@@ -62,18 +67,22 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
     db.refresh(user)
     return user
 
+
 @router.post("/login", response_model=TokenOut)
 def login(payload: UserLogin, db: Session = Depends(get_db)):
     user: User | None = db.query(User).filter(User.email == payload.email).first()
     if not user:
         raise HTTPException(status_code=401, detail="Credenciales inválidas.")
 
-    hashed = getattr(user, "password_hash", None) or getattr(user, "hashed_password", None)
+    hashed = getattr(user, "password_hash", None) or getattr(
+        user, "hashed_password", None
+    )
     if not hashed or not verify_password(payload.password, hashed):
         raise HTTPException(status_code=401, detail="Credenciales inválidas.")
 
     token = create_access_token(sub=str(user.id))
-    return TokenOut(access_token=token)  # token_type="bearer" 
+    return TokenOut(access_token=token)  # token_type="bearer"
+
 
 @router.post("/refresh", response_model=TokenOut)
 def refresh(current_user: User = Depends(get_current_user)):
@@ -81,10 +90,14 @@ def refresh(current_user: User = Depends(get_current_user)):
     token = create_access_token(sub=str(current_user.id))
     return TokenOut(access_token=token)
 
+
 @router.post("/logout", response_model=MessageOut)
 def logout():
     # JWT es stateless: el cliente debe borrar el token
-    return MessageOut(message="Sesión cerrada. Elimina el token del almacenamiento local.")
+    return MessageOut(
+        message="Sesión cerrada. Elimina el token del almacenamiento local."
+    )
+
 
 @router.get("/me", response_model=UserOut)
 def me(current_user: User = Depends(get_current_user)):

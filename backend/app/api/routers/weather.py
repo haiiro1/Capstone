@@ -1,7 +1,12 @@
 from fastapi import APIRouter, HTTPException
 
 # Importando la función del servicio de clima~
-from app.api.services.weather_service import get_current_weather, get_forecast, get_alerts
+from app.api.services.weather_service import (
+    get_current_weather,
+    get_forecast,
+    get_alerts,
+)
+
 router = APIRouter()
 
 

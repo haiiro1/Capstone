@@ -10,11 +10,9 @@ function Faq() {
         funcionamiento de PlantGuard.
       </p>
       <hr className="mb-4" />
-
       {/* --- Inicio del Acordeón de Bootstrap --- */}
       {/* Usamos un ID único para este acordeón para evitar conflictos */}
       <div className="accordion" id="faqPageAccordion">
-        
         {/* Pregunta 1 */}
         <div className="accordion-item">
           <h2 className="accordion-header" id="headingOne">
@@ -28,7 +26,6 @@ function Faq() {
             </div>
           </div>
         </div>
-
         {/* Pregunta 2 */}
         <div className="accordion-item">
           <h2 className="accordion-header" id="headingTwo">
@@ -42,7 +39,6 @@ function Faq() {
             </div>
           </div>
         </div>
-
         {/* Pregunta 3 */}
         <div className="accordion-item">
           <h2 className="accordion-header" id="headingThree">
@@ -56,7 +52,6 @@ function Faq() {
             </div>
           </div>
         </div>
-
         {/* Pregunta 4 */}
         <div className="accordion-item">
           <h2 className="accordion-header" id="headingFour">
@@ -70,7 +65,6 @@ function Faq() {
             </div>
           </div>
         </div>
-        
         {/* Pregunta 5 */}
         <div className="accordion-item">
           <h2 className="accordion-header" id="headingFive">
@@ -84,12 +78,9 @@ function Faq() {
             </div>
           </div>
         </div>
-
       </div>
       {/* --- Fin del Acordeón --- */}
-
       <hr className="my-5" />
-
       <div className="text-center">
         <h5 className="fw-light">¿No encontraste lo que buscabas?</h5>
         <p className="text-muted">

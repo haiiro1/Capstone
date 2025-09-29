@@ -121,7 +121,9 @@ async def get_alerts(lat: float, lon: float):
         if f["max_temp"] >= HEATWAVE_THRESHOLD_C:
             alerts.append("Ola de calor")
 
-        if any("rain" in e and e["rain"].get("3h", 0) >= RAIN_MM_THRESHOLD for e in entries):
+        if any(
+            "rain" in e and e["rain"].get("3h", 0) >= RAIN_MM_THRESHOLD for e in entries
+        ):
             alerts.append("Posibilidad de lluvias intensas")
 
         if any(e["wind"]["speed"] * 3.6 >= WIND_KPH_THRESHOLD for e in entries):

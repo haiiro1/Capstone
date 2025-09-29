@@ -44,7 +44,7 @@ function App() {
           <Route path="/alertas" element={<Alertas />} />
           <Route path="/perfil" element={<Perfil />} />
         </Route>
-        
+
       </Routes>
   );
 }

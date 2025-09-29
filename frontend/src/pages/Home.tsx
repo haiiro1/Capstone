@@ -17,7 +17,6 @@ function Home() {
             </div>
           </div>
         </div>
-
         {/* Tarjeta 2: Riesgos detectados */}
         <div className="col-md-6 col-lg-3 mb-3">
           <div className="card text-center">
@@ -27,7 +26,6 @@ function Home() {
             </div>
           </div>
         </div>
-
         {/* Tarjeta 3: Alertas climáticas */}
         <div className="col-md-6 col-lg-3 mb-3">
           <div className="card text-center">
@@ -37,7 +35,6 @@ function Home() {
             </div>
           </div>
         </div>
-
         {/* Tarjeta 4: Último análisis */}
         <div className="col-md-6 col-lg-3 mb-3">
           <div className="card text-center">
@@ -48,7 +45,6 @@ function Home() {
           </div>
         </div>
       </div>
-
       {/* Fila 2: Las 3 tarjetas de acciones y resúmenes */}
       <div className="row">
         {/* Tarjeta 1: Subir imagen */}
@@ -65,7 +61,6 @@ function Home() {
             </div>
           </div>
         </div>
-
         {/* Tarjeta 2: Resumen de salud */}
         <div className="col-lg-4 mb-4">
           <div className="card h-100">
@@ -79,7 +74,6 @@ function Home() {
             </div>
           </div>
         </div>
-
         {/* Tarjeta 3: Alertas del clima */}
         <div className="col-lg-4 mb-4">
           <div className="card h-100">

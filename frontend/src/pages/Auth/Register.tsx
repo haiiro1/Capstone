@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import api, { extractErrorMessage } from "../../lib/api"; 
+import api, { extractErrorMessage } from "../../lib/api";
 import { splitFullName } from "../../utils/names";
 
 const PASSWORD_MIN = 8;
@@ -145,7 +145,7 @@ function Register() {
             {errors.confirmPassword && (
               <div className="invalid-feedback">{errors.confirmPassword.message}</div>
             )}
-          </div>  
+          </div>
         </div>
 
         <div className="form-check mb-3">
