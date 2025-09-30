@@ -27,12 +27,17 @@ interface AlertItem {
 
 function Alerts() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [forecast, setForecast] = useState<ForecastItem>([]);
+  const [forecast, setForecast] = useState<ForecastItem[]>([]);
   const [alerts, setAlerts] = useState<AlertItem>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const parseISODateAsLocal = (isoDate: string) => {
+    const [y, m, d] = isoDate.split("-").map(Number);
+    return new Date(y, m - 1, d);
+  };
   const formatLocalDate = (isoDate: string, options?: Intl.DateTimeFormatOptions) => {
-    return new Date(isoDate).toLocaleDateString("es-CL", options);
+    const date = parseISODateAsLocal(isoDate);
+    return date.toLocaleDateString("es-CL", options);
   };
 
   useEffect(() => {
@@ -43,22 +48,20 @@ function Alerts() {
         // STGO lan/lot is -33.45/-70.68
         const [nowRes, forecastRes, eventsRes] = await Promise.all([
           api.get("/api/alerts/weather/now?lat=63&lon=-68.66"),
-          api.get("/api/alerts/weather/forecast?lat=63&lon=-68.66"),
+          api.get(`/api/alerts/weather/forecast?lat=63&lon=-68.66&ts=${Date.now()}`),
           api.get("/api/alerts/weather/events?lat=63&lon=-68.66"),
         ]);
 
         setWeather(nowRes.data);
         const today = new Date();
-        const forecastData: ForecastItem[] = (forecastRes.data || []).filter(
-          (day) => {
-            const dayDate = new Date(day.date);
-            return !(
-              dayDate.getDate() === today.getDate() &&
-              dayDate.getMonth() === today.getMonth() &&
-              dayDate.getFullYear() === today.getFullYear()
-            );
-          }
-        );
+        const forecastData: ForecastItem[] = (forecastRes.data || []).filter((day) => {
+          const d = parseISODateAsLocal(day.date);
+          return !(
+            d.getDate() === today.getDate() &&
+            d.getMonth() === today.getMonth() &&
+            d.getFullYear() === today.getFullYear()
+          );
+        });
         setForecast(forecastData);
         setAlerts(eventsRes.data || []);
       } catch (err) {
@@ -183,7 +186,7 @@ function Alerts() {
                     <p className="mb-0">
                       {day.min_temp}°C / {day.max_temp}°C
                     </p>
-                    <small className="text-muted text-capitalize">{day.condition}</small>
+                    <small className="text-muted text-capitalize">{day.description}</small>
                   </div>
                 </div>
               ))}

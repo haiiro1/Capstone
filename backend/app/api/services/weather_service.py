@@ -78,8 +78,13 @@ async def get_forecast(lat: float, lon: float, for_alerts: bool = True):
 
     # Since we need to display the forecast, we have to parse 'dt' from the API as well,
     # Problem is, it's useless for display if raw, so we convert it into standard time.
+    tz_offset = data.get("city", {}).get("timezone", 0)
+    today_local = (datetime.utcnow() + timedelta(seconds=tz_offset)).date()
     for entry in data["list"]:
-        day = datetime.utcfromtimestamp(entry["dt"]).date()
+        dt_local = datetime.utcfromtimestamp(entry["dt"] + tz_offset)
+        day = dt_local.date()
+        if day < today_local:
+            continue
         grouped[day].append(entry)
 
     # We set the fetched forecast data so we only display the min-max temperature data for an entire day.

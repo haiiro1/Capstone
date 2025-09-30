@@ -19,7 +19,10 @@ type ProfileExtras = {
   location?: string;
   crops?: string[]; // top 5
 };
-
+interface AlertItem {
+  date: string;
+  alerts: string[];
+}
 const LS_USER = "pg_user";
 const LS_PROFILE = "pg_profile";
 
@@ -99,6 +102,32 @@ function Profile() {
     setLocation(extras.location || "");
     setCropsText((extras.crops || []).join(", "));
   }, [extras]);
+
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        setLoading(true);
+        // the lat and lot are currently set to a village in nunavut to show the alerts,
+        // STGO lan/lot is -33.45/-70.68
+        const [nowRes] = await Promise.all([
+          api.get("/api/alerts/weather/now?lat=63&lon=-68.66")
+        ]);
+
+        setWeather(nowRes.data);
+      } catch (err) {
+        console.error(err);
+        setError("No se pudo cargar la información del clima en este momento.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAll();
+  }, []);
 
   const saveExtras = async () => {
     const crops = cropsText
@@ -272,23 +301,25 @@ function Profile() {
             <div className="card-body">
               <h5 className="card-title">Clima de hoy</h5>
               <div className="text-center my-4">
-                <div className="display-4">🌦️</div>
-                <div className="fs-1 fw-bold">22°C</div>
-                <div className="text-muted">Parcialmente nublado</div>
-              </div>
-              <div className="d-flex justify-content-around text-center mb-4">
-                <div>
-                  <small className="text-muted">Mín</small>
-                  <div>12°</div>
+              {loading && <p className="text-muted">Cargando clima...</p>}
+              {error && <div className="alert alert-warning py-2">{error}</div>}
+              {weather && (
+                <div className="d-flex align-items-center">
+                  <img
+                    src={`https://openweathermap.org/img/wn/${weather.icon}@4x.png`}
+                    alt={weather.condition}
+                    style={{ width: '100px', height: '100px', imageRendering: 'pixelated' }}
+                  />
+                  <div className="ms-3">
+                    <h2 className="display-4 fw-bold">{Math.round(weather.temp)}°C</h2>
+                    <p className="lead text-capitalize mb-0">{weather.condition}</p>
+                  </div>
+                  <div className="ms-auto text-end">
+                    <p className="mb-1">Humedad: {weather.humidity}%</p>
+                    <p className="mb-0">Viento: {Math.round(weather.wind_speed)} km/h</p>
+                  </div>
                 </div>
-                <div>
-                  <small className="text-muted">Máx</small>
-                  <div>25°</div>
-                </div>
-                <div>
-                  <small className="text-muted">Humedad</small>
-                  <div>58%</div>
-                </div>
+              )}
               </div>
               <div className="d-grid">
                 <button className="btn btn-success">Configurar alertas</button>

@@ -1,8 +1,32 @@
 import MainContent from "../components/MainContent";
+import { useEffect, useState } from "react";
+import api from "../lib/api";
 
-// Para los íconos, puedes usar SVGs o una librería como react-icons.
-// Por ahora, usaré emojis como marcadores de posición.
+interface AlertItem {
+  date: string;
+  alerts: string[];
+}
+
 function Home() {
+  const [alerts, setAlerts] = useState<AlertItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAlerts = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get("/api/alerts/weather/events?lat=63&lon=-68.66");
+        setAlerts(res.data || []);
+      } catch (err) {
+        console.error("Error fetching alerts:", err);
+        setAlerts([]); // fallback
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAlerts();
+  }, []);
+
   return (
     // Usamos el componente MainContent y le pasamos el título "Dashboard"
     <MainContent title="Dashboard">
@@ -30,8 +54,10 @@ function Home() {
         <div className="col-md-6 col-lg-3 mb-3">
           <div className="card text-center">
             <div className="card-body">
-              <h5 className="card-title text-muted small">Alertas climáticas activas</h5>
-              <p className="card-text fs-2 fw-bold">🌦️ 3</p>
+              <h5 className="card-title text-muted small">Alertas climáticas</h5>
+              <p className="card-text fs-2 fw-bold">
+                🌦️ {alerts.reduce((acc, item) => acc + item.alerts.length, 0)}
+              </p>
             </div>
           </div>
         </div>
@@ -80,9 +106,18 @@ function Home() {
             <div className="card-body">
               <h5 className="card-title">Alertas del clima</h5>
               <ul className="list-unstyled mt-3">
-                <li className="mb-2">☔ Lluvias intensas en 24h</li>
-                <li className="mb-2">❄️ Riesgo de heladas en 72h</li>
-                <li className="mb-2">☀️ Ola de calor leve (5 días)</li>
+                {loading && <li className="mb-2 text-muted">Cargando alertas...</li>}
+                {!loading && alerts.length === 0 && (
+                  <li className="mb-2 text-success">✅ No hay alertas climáticas activas</li>
+                )}
+                {!loading &&
+                  alerts.map((item) =>
+                    item.alerts.map((a, i) => (
+                      <li key={`${item.date}-${i}`} className="mb-2">
+                        ⚠️ {a} <small className="text-muted">({item.date})</small>
+                      </li>
+                    ))
+                  )}
               </ul>
             </div>
           </div>
