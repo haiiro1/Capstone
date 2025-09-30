@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import MainLayout from "./Layouts/MainLayout";
 import AuthLayout from "./Layouts/AuthLayout";
 import SimpleLayout from "./Layouts/SimpleLayout";
+import { LocationProvider } from "./contexts/LocationContext";
 
 // Relativo a la página
 import Home from "./pages/Home";
@@ -21,6 +22,7 @@ import Privacy from "./pages/Privacy";
 
 function App() {
   return (
+    <LocationProvider>
       <Routes>
         {/* Rutas de AuthLayout */}
         <Route element={<AuthLayout />}>
@@ -46,6 +48,7 @@ function App() {
         </Route>
 
       </Routes>
+    </LocationProvider>
   );
 }
 

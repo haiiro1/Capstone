@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import MainContent from "../components/MainContent";
+import { useLocation } from "../contexts/LocationContext";
 import api from "../lib/api";
 
 type User = {
@@ -102,19 +103,18 @@ function Profile() {
     setLocation(extras.location || "");
     setCropsText((extras.crops || []).join(", "));
   }, [extras]);
-
+  // weather api funny stuff
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const { lat, lon } = useLocation();
   useEffect(() => {
     const fetchAll = async () => {
       try {
         setLoading(true);
-        // the lat and lot are currently set to a village in nunavut to show the alerts,
-        // STGO lan/lot is -33.45/-70.68
+        // the lat and lot are now dynamic!
         const [nowRes] = await Promise.all([
-          api.get("/api/alerts/weather/now?lat=63&lon=-68.66")
+          api.get(`/api/alerts/weather/now?lat=${lat}&lon=${lon}`)
         ]);
 
         setWeather(nowRes.data);

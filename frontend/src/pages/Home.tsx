@@ -1,5 +1,6 @@
 import MainContent from "../components/MainContent";
 import { useEffect, useState } from "react";
+import { useLocation } from "../contexts/LocationContext";
 import api from "../lib/api";
 
 interface AlertItem {
@@ -10,16 +11,16 @@ interface AlertItem {
 function Home() {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const { lat, lon } = useLocation();
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
         setLoading(true);
-        const res = await api.get("/api/alerts/weather/events?lat=63&lon=-68.66");
+        const res = await api.get(`/api/alerts/weather/events?lat=${lat}&lon=${lon}`);
         setAlerts(res.data || []);
       } catch (err) {
         console.error("Error fetching alerts:", err);
-        setAlerts([]); // fallback
+        setAlerts([]);
       } finally {
         setLoading(false);
       }

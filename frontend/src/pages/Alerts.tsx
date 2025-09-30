@@ -1,5 +1,6 @@
 import MainContent from "../components/MainContent";
 import { useEffect, useState } from "react";
+import { useLocation } from "../contexts/LocationContext";
 import api from "../lib/api";
 
 interface WeatherData {
@@ -26,6 +27,7 @@ interface AlertItem {
 
 
 function Alerts() {
+  const { lat, lon, setLat, setLon } = useLocation();
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [forecast, setForecast] = useState<ForecastItem[]>([]);
   const [alerts, setAlerts] = useState<AlertItem>([]);
@@ -44,12 +46,11 @@ function Alerts() {
     const fetchAll = async () => {
       try {
         setLoading(true);
-        // the lat and lot are currently set to a village in nunavut to show the alerts,
-        // STGO lan/lot is -33.45/-70.68
+        // the lat and lot are now dynamic!
         const [nowRes, forecastRes, eventsRes] = await Promise.all([
-          api.get("/api/alerts/weather/now?lat=63&lon=-68.66"),
-          api.get(`/api/alerts/weather/forecast?lat=63&lon=-68.66&ts=${Date.now()}`),
-          api.get("/api/alerts/weather/events?lat=63&lon=-68.66"),
+          api.get(`/api/alerts/weather/now?lat=${lat}&lon=${lon}`),
+          api.get(`/api/alerts/weather/forecast?lat=${lat}&lon=${lon}&ts=${Date.now()}`),
+          api.get(`/api/alerts/weather/events?lat=${lat}&lon=${lon}`),
         ]);
 
         setWeather(nowRes.data);
@@ -73,7 +74,7 @@ function Alerts() {
     };
 
     fetchAll();
-  }, []);
+  }, [lat, lon]);
 
   return (
     <MainContent title="Alertas climáticas">
@@ -193,6 +194,26 @@ function Alerts() {
             </div>
           </div>
         </div>
+      </div>
+      <div className="mb-3 d-flex gap-2">
+        <input
+          type="text"
+          value={lat}
+          onChange={(e) => setLat(e.target.value)}
+          className="form-control"
+          placeholder="Latitud"
+        />
+        <input
+          type="text"
+          value={lon}
+          onChange={(e) => setLon(e.target.value)}
+          className="form-control"
+          placeholder="Longitud"
+        />
+      </div>
+      <div className="d-flex justify-content-between">
+        <p className="small text-muted mt-3">Punta Arenas -53.15483 / -70.91129</p>
+        <p className="small text-muted mt-3">Santiago -33.45 / -70.66</p>
       </div>
     </div>
     </MainContent>
