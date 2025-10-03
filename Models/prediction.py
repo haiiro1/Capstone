@@ -5,6 +5,8 @@ import tensorflow as tf
 from tensorflow.keras.utils import img_to_array
 from tensorflow.keras.preprocessing import image as kimage
 from tensorflow.keras.applications.resnet50 import preprocess_input as rn50_preprocess
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input as mv2_preprocess
+from tensorflow.keras.applications.inception_v3 import preprocess_input as incv3_preprocess
 
 
 INPUT_SIZE = 256
@@ -29,6 +31,8 @@ def load_and_prepare(path):
 
     if USED_RESNET_PREPROCESS:
         arr = rn50_preprocess(arr)
+        #arr = mv2_preprocess(arr)
+        #arr = incv3_preprocess(arr)
 
     elif USED_RESCALING_LAYER:
         pass
@@ -51,6 +55,7 @@ def main():
         class_labels = json.load(file)
 
     img_path = "./output/test/TOMATO_HEALTHY/Tomato_healthy3779.jpg"
+    #img_path = "./output/test/TOMATO_LATE_BLIGHT/Tomato_Late_blight37.jpg"
     x = load_and_prepare(img_path)
     top3 = predict_topk(model,x, class_labels)
 
