@@ -139,7 +139,7 @@ function Profile() {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const { data } = await api.post<User>("/api/users/me/avatar", fd);
+      const { data } = await api.post<User>("/api/users/me/avatar", r.data);
       setUser(data);
       localStorage.setItem(LS_USER, JSON.stringify(data));
       setAvatarPreview(null);
