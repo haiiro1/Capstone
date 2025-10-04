@@ -42,6 +42,7 @@ Este proyecto combina tecnologías modernas para crear una solución robusta, es
 | :------------------ | :------------------------------------------- | :----------------------------------------------------------------------- |
 | **Frontend** | `React` `Vite` `TypeScript` `Bootstrap 5`    | Para una interfaz de usuario rápida, interactiva y segura.               |
 | **Backend (API)** | `FastAPI` `Python`                           | Para una API de alto rendimiento, ideal para servir el modelo de IA.       |
+| **Autenticación (API)** | `JWT (Tokens)` `Passlib`         | Manejo de registro, login y sesiones seguras mediante tokens JWT.       |
 | **Base de Datos** | `PostgreSQL` `NeonDB`                        | Una base de datos relacional potente para gestionar usuarios y análisis. |
 | **Modelo de IA** | `TensorFlow` (Red Neuronal Convolucional)    | Para el entrenamiento y la ejecución del modelo de visión por computador.  |
 | **API Externa** | `OpenWeatherMap`                             | Para obtener los datos del clima en tiempo real.                         |
