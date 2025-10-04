@@ -18,6 +18,7 @@ from app.core.security import (
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+
 # DB session dep
 def get_db():
     db = SessionLocal()
@@ -28,6 +29,12 @@ def get_db():
 
 # OAuth2 bearer (para leer Authorization: Bearer <token>)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+
+def _abs_media_url(request: Request, rel_path: str | None) -> str | None:
+    if not rel_path:
+        return None
+    base = str(request.base_url).rstrip("/")
+    return urljoin(base + "/", rel_path.lstrip("/"))
 
 def get_current_user(
     token: str = Depends(oauth2_scheme),
@@ -87,14 +94,8 @@ def logout():
     return MessageOut(message="Sesión cerrada. Elimina el token del almacenamiento local.")
 
 
-def _abs_media_url(request: Request, rel_path: str | None) -> str | None:
-    if not rel_path:
-        return None
-    base = str(request.base_url).rstrip("/")
-    return urljoin(base + "/", rel_path.lstrip("/"))
-
 @router.get("/me", response_model=UserOut)
-def me(request: Request,current_user: User = Depends(get_current_user)):
-    payload = {current_user.__dict__}
+def me(request: Request, current_user: User = Depends(get_current_user)):
+    payload = {**current_user.__dict__}
     payload["avatar_url"] = _abs_media_url(request, current_user.avatar_path)
     return UserOut.model_validate(payload)
