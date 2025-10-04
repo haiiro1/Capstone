@@ -32,16 +32,25 @@ function Profile() {
   const [uploading, setUploading] = useState(false);
 
   const API_ORIGIN = useMemo(() => {
-  try { return new URL(import.meta.env.VITE_API_URL || "http://localhost:8000/api").origin; }
-  catch { return "http://localhost:8000"; }
+  try {
+    return new URL(import.meta.env.VITE_API_URL || "http://localhost:8000/api").origin;
+  } catch {
+    return "http://localhost:8000";
+  }
 }, []);
 
   const fullAvatar = useMemo(() => {
-  if (!user?.avatar_url) return null;
-  if (user.avatar_url.startsWith("http")) return user.avatar_url;
-  // si (por algún motivo) llega relativa, se hace absoluta con el ORIGEN, NO con /api
-  return `${API_ORIGIN}${user.avatar_url}`;
-}, [user, API_ORIGIN]);
+    if (!user?.avatar_url && !user?.avatar_url) return null;
+
+    // prioriza avatar_url (absoluta o relativa)
+    const url = user.avatar_url || user.avatar_url;
+
+    // si ya es absoluta (https://...), úsala tal cual
+    if (url.startsWith("http")) return url;
+
+    // si es relativa (/media/...), prepéndele la API
+    return `${API_ORIGIN}${url}`;
+  }, [user, API_ORIGIN]);
 
   // cargar user de localStorage, con fallback a /me
   useEffect(() => {
@@ -190,15 +199,18 @@ function Profile() {
                   {/* muestra imagen si existe o preview; si no, iniciales */}
                   {avatarPreview ? (
                     <img
+                      key="preview"
                       src={avatarPreview}
                       alt="preview"
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />
                   ) : fullAvatar ? (
                     <img
-                      src={fullAvatar}
+                      key={fullAvatar || "noavatar"}
+                      src={fullAvatar || ""}
                       alt="avatar"
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      onError={(e) => (e.currentTarget.style.display = "none")}
                     />
                   ) : (
                     <span className="fs-3 fw-bold text-secondary">{initials}</span>
