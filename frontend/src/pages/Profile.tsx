@@ -130,23 +130,45 @@ function Profile() {
     }
   };
 
+  let lastPreviewUrl: string | null = null;
+
   // subir avatar
   const handleAvatarChange = async (file?: File) => {
-    if (!file) return;
-    const blobUrl = URL.createObjectURL(file);
-    setAvatarPreview(blobUrl);
-    setUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const { data } = await api.post<User>("/api/users/me/avatar", r.data);
-      setUser(data);
-      localStorage.setItem(LS_USER, JSON.stringify(data));
+  if (!file) return;
+  // 1) Limpia preview anterior si existía
+  if (lastPreviewUrl) {
+    URL.revokeObjectURL(lastPreviewUrl);
+    lastPreviewUrl = null;
+  }
+  const preview = URL.createObjectURL(file);
+  lastPreviewUrl = preview;
+  setAvatarPreview(preview);
+  setUploading(true);
+  try {
+    // 2) Subir
+    const fd = new FormData();
+    fd.append("file", file);
+
+    // Usar SIEMPRE ruta absoluta a tu API
+    const { data } = await api.post<User>("/api/users/me/avatar", fd);
+
+    // 3) Actualiza usuario
+    setUser(data);
+    localStorage.setItem(LS_USER, JSON.stringify(data));
+
+    // 4) Mantiene el preview hasta que la imagen NUEVA cargue, luego lo borra
+    requestAnimationFrame(() => {
       setAvatarPreview(null);
-    } catch {
-    } finally {
-      setUploading(false);
-      URL.revokeObjectURL(blobUrl);
+      if (lastPreviewUrl) {
+        URL.revokeObjectURL(lastPreviewUrl);
+        lastPreviewUrl = null;
+      }
+    });
+  } catch (e) {
+    // Si falla la subida, manteniene el preview visible para que el usuario sepa qué eligió
+    console.error("upload avatar error:", e);
+  } finally {
+    setUploading(false);
   }
 };
 
