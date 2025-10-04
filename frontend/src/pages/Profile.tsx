@@ -31,13 +31,17 @@ function Profile() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  const API_ORIGIN = useMemo(() => {
+  try { return new URL(import.meta.env.VITE_API_URL || "http://localhost:8000/api").origin; }
+  catch { return "http://localhost:8000"; }
+}, []);
+
   const fullAvatar = useMemo(() => {
-    if (!user?.avatar_url) return null;
-    return user.avatar_url.startsWith("http")
-      ? user.avatar_url
-      : `${apiBase}${user.avatar_url}`;
-  }, [user, apiBase]);
+  if (!user?.avatar_url) return null;
+  if (user.avatar_url.startsWith("http")) return user.avatar_url;
+  // si (por algún motivo) llega relativa, se hace absoluta con el ORIGEN, NO con /api
+  return `${API_ORIGIN}${user.avatar_url}`;
+}, [user, API_ORIGIN]);
 
   // cargar user de localStorage, con fallback a /me
   useEffect(() => {
@@ -46,7 +50,6 @@ function Profile() {
       try {
         const parsed = JSON.parse(cached) as User;
         setUser(parsed);
-        // si no hay LS_PROFILE, toma los valores desde el user cacheado
         const ex = localStorage.getItem(LS_PROFILE);
         if (!ex) {
           setExtras({
@@ -124,11 +127,10 @@ function Profile() {
       setUser(data);
       localStorage.setItem(LS_USER, JSON.stringify(data));
     } catch {
-      
     }
   };
 
-  // subir avatar 
+  // subir avatar
   const handleAvatarChange = async (file?: File) => {
     if (!file) return;
     const blobUrl = URL.createObjectURL(file);
@@ -136,8 +138,8 @@ function Profile() {
     setUploading(true);
     try {
       const fd = new FormData();
-      fd.append("file", file); 
-      const { data } = await api.post<User>("../api/users/me/avatar", fd);
+      fd.append("file", file);
+      const { data } = await api.post<User>("/api/users/me/avatar", fd);
       setUser(data);
       localStorage.setItem(LS_USER, JSON.stringify(data));
       setAvatarPreview(null);

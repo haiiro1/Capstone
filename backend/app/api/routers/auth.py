@@ -1,13 +1,14 @@
 # Login, register, refresh, logout
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from jose import JWTError
+from urllib.parse import urljoin
 
 from app.schemas.user import UserCreate, UserLogin, UserOut
 from app.schemas.auth import TokenOut, MessageOut
 from app.db.session import SessionLocal
-from app.db.models import User 
+from app.db.models import User
 from app.core.security import (
     get_password_hash,
     verify_password,
@@ -85,6 +86,15 @@ def logout():
     # JWT es stateless: el cliente debe borrar el token
     return MessageOut(message="Sesión cerrada. Elimina el token del almacenamiento local.")
 
+
+def _abs_media_url(request: Request, rel_path: str | None) -> str | None:
+    if not rel_path:
+        return None
+    base = str(request.base_url).rstrip("/")
+    return urljoin(base + "/", rel_path.lstrip("/"))
+
 @router.get("/me", response_model=UserOut)
-def me(current_user: User = Depends(get_current_user)):
-    return current_user
+def me(request: Request,current_user: User = Depends(get_current_user)):
+    payload = {current_user.__dict__}
+    payload["avatar_url"] = _abs_media_url(request, current_user.avatar_path)
+    return UserOut.model_validate(payload)
