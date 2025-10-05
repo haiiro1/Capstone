@@ -1,17 +1,21 @@
+import { lazy, useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import MainLayout from "./Layouts/MainLayout";
 import AuthLayout from "./Layouts/AuthLayout";
 import SimpleLayout from "./Layouts/SimpleLayout";
 import { LocationProvider } from "./contexts/LocationContext";
+import { loadGoogleMaps } from "./utils/GoogleMaps";
+
 
 // Relativo a la página
-import Home from "./pages/Home";
 import Analizar from "./pages/Analytics";
 import Historial from "./pages/History";
-import Alertas from "./pages/Alerts";
-import Perfil from "./pages/Profile";
 import Help from "./pages/Help";
 import Faq from "./pages/Faq";
+
+const Alertas = lazy(() => import("./pages/Alerts"));
+const Home = lazy(() => import("./pages/Home"));
+const Perfil = lazy(() => import("./pages/Profile"));
 
 // Relativo al Login
 import Login from "./pages/Auth/Login";
@@ -19,8 +23,19 @@ import Register from "./pages/Auth/Register";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 
-
 function App() {
+  const [mapsReady, setMapsReady] = useState(false);
+
+  useEffect(() => {
+    loadGoogleMaps()
+      .then(() => setMapsReady(true))
+      .catch((err) => console.error("Google Maps failed to load:", err));
+  }, []);
+
+  if (!mapsReady) {
+    return <p>Cargando librerías de Google Maps...</p>;
+  }
+
   return (
     <LocationProvider>
       <Routes>
@@ -46,7 +61,6 @@ function App() {
           <Route path="/alertas" element={<Alertas />} />
           <Route path="/perfil" element={<Perfil />} />
         </Route>
-
       </Routes>
     </LocationProvider>
   );

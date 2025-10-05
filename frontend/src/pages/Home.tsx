@@ -11,22 +11,44 @@ interface AlertItem {
 function Home() {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const { lat, lon } = useLocation();
+  const [error, setError] = useState<string | null>(null);
+  const { address } = useLocation();
   useEffect(() => {
-    const fetchAlerts = async () => {
+    if (!address) {
+      setAlerts([]);
+      setError("Por favor ingresa una dirección para ver el clima.");
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchAlerts= async () => {
       try {
         setLoading(true);
-        const res = await api.get(`/api/alerts/weather/events?lat=${lat}&lon=${lon}`);
-        setAlerts(res.data || []);
+        setError(null);
+
+        const encoded = encodeURIComponent(address);
+        const eventsRes = await api.get(
+          `/api/alerts/weather/events?address=${encoded}`
+        );
+
+        if (!cancelled) setAlerts(eventsRes.data || []);
       } catch (err) {
-        console.error("Error fetching alerts:", err);
-        setAlerts([]);
+        if (cancelled) return;
+        console.error(err);
+        setError("No se pudo cargar la información del clima en este momento.");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
+
     fetchAlerts();
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [address]);
 
   return (
     // Usamos el componente MainContent y le pasamos el título "Dashboard"
