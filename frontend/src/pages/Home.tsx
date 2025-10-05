@@ -1,8 +1,55 @@
 import MainContent from "../components/MainContent";
+import { useEffect, useState } from "react";
+import { useLocation } from "../contexts/LocationContext";
+import api from "../lib/api";
 
-// Para los íconos, puedes usar SVGs o una librería como react-icons.
-// Por ahora, usaré emojis como marcadores de posición.
+interface AlertItem {
+  date: string;
+  alerts: string[];
+}
+
 function Home() {
+  const [alerts, setAlerts] = useState<AlertItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { address } = useLocation();
+  useEffect(() => {
+    if (!address) {
+      setAlerts([]);
+      setError("Por favor ingresa una dirección para ver el clima.");
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchAlerts= async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const encoded = encodeURIComponent(address);
+        const eventsRes = await api.get(
+          `/api/alerts/weather/events?address=${encoded}`
+        );
+
+        if (!cancelled) setAlerts(eventsRes.data || []);
+      } catch (err) {
+        if (cancelled) return;
+        console.error(err);
+        setError("No se pudo cargar la información del clima en este momento.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchAlerts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [address]);
+
   return (
     // Usamos el componente MainContent y le pasamos el título "Dashboard"
     <MainContent title="Dashboard">
@@ -17,7 +64,6 @@ function Home() {
             </div>
           </div>
         </div>
-
         {/* Tarjeta 2: Riesgos detectados */}
         <div className="col-md-6 col-lg-3 mb-3">
           <div className="card text-center">
@@ -27,17 +73,17 @@ function Home() {
             </div>
           </div>
         </div>
-
         {/* Tarjeta 3: Alertas climáticas */}
         <div className="col-md-6 col-lg-3 mb-3">
           <div className="card text-center">
             <div className="card-body">
-              <h5 className="card-title text-muted small">Alertas climáticas activas</h5>
-              <p className="card-text fs-2 fw-bold">🌦️ 3</p>
+              <h5 className="card-title text-muted small">Alertas climáticas</h5>
+              <p className="card-text fs-2 fw-bold">
+                🌦️ {alerts.reduce((acc, item) => acc + item.alerts.length, 0)}
+              </p>
             </div>
           </div>
         </div>
-
         {/* Tarjeta 4: Último análisis */}
         <div className="col-md-6 col-lg-3 mb-3">
           <div className="card text-center">
@@ -48,7 +94,6 @@ function Home() {
           </div>
         </div>
       </div>
-
       {/* Fila 2: Las 3 tarjetas de acciones y resúmenes */}
       <div className="row">
         {/* Tarjeta 1: Subir imagen */}
@@ -65,7 +110,6 @@ function Home() {
             </div>
           </div>
         </div>
-
         {/* Tarjeta 2: Resumen de salud */}
         <div className="col-lg-4 mb-4">
           <div className="card h-100">
@@ -79,16 +123,24 @@ function Home() {
             </div>
           </div>
         </div>
-
         {/* Tarjeta 3: Alertas del clima */}
         <div className="col-lg-4 mb-4">
           <div className="card h-100">
             <div className="card-body">
               <h5 className="card-title">Alertas del clima</h5>
               <ul className="list-unstyled mt-3">
-                <li className="mb-2">☔ Lluvias intensas en 24h</li>
-                <li className="mb-2">❄️ Riesgo de heladas en 72h</li>
-                <li className="mb-2">☀️ Ola de calor leve (5 días)</li>
+                {loading && <li className="mb-2 text-muted">Cargando alertas...</li>}
+                {!loading && alerts.length === 0 && (
+                  <li className="mb-2 text-success">✅ No hay alertas climáticas activas</li>
+                )}
+                {!loading &&
+                  alerts.map((item) =>
+                    item.alerts.map((a, i) => (
+                      <li key={`${item.date}-${i}`} className="mb-2">
+                        ⚠️ {a} <small className="text-muted">({item.date})</small>
+                      </li>
+                    ))
+                  )}
               </ul>
             </div>
           </div>

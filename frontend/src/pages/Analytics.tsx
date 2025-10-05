@@ -52,5 +52,5 @@ function Analytics() {
   );
 }
 
-const Analizar = Analytics; 
+const Analizar = Analytics;
 export default Analizar;

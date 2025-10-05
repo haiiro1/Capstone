@@ -6,7 +6,6 @@ function Help() {
       <h2 className="fw-bold mb-4">Centro de Ayuda</h2>
       <p className="text-muted">Encuentra respuestas, guías y formas de contactarnos.</p>
       <hr className="mb-5"/>
-
       {/* --- Sección 1: Preguntas Frecuentes --- */}
       <h5 className="mb-3">❓ Preguntas Frecuentes (FAQ)</h5>
       <div className="accordion" id="faqAccordion">
@@ -42,9 +41,7 @@ function Help() {
           Ver más preguntas →
         </Link>
       </div>
-
       <hr className="my-5"/>
-
       {/* --- Sección 2: Guías Rápidas --- */}
       <h5 className="mb-3">📚 Guías Rápidas</h5>
       <div className="list-group">
@@ -52,9 +49,7 @@ function Help() {
         <a href="#!" className="list-group-item list-group-item-action">Interpretando los resultados del diagnóstico</a>
         <a href="#!" className="list-group-item list-group-item-action">Configurando las alertas climáticas</a>
       </div>
-
       <hr className="my-5"/>
-
       {/* --- Sección 3: Contacto de Soporte --- */}
       <h5 className="mb-3">✉️ Contacto de Soporte</h5>
       <p>¿Tienes un problema técnico o una consulta que no encuentras aquí? Nuestro equipo de soporte está listo para ayudarte.</p>
@@ -62,7 +57,6 @@ function Help() {
         <li><strong>Email:</strong> soporte@plantguard.app</li>
         <li><strong>Horario:</strong> Lunes a Viernes, 9:00 - 18:00 (Hora de Chile)</li>
       </ul>
-      
       <hr className="my-5"/>
     </>
   );

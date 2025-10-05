@@ -2,7 +2,7 @@ from fastapi import HTTPException
 import httpx
 
 
-async def get_weather(url: str, params: dict):
+async def fetch_json(url: str, params: dict):
     '''
     Method to simplify the fetch of weather data from the Openweathermap API.
     '''

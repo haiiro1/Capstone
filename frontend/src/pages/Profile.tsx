@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import MainContent from "../components/MainContent";
+import { useLocation } from "../contexts/LocationContext";
 import api from "../lib/api";
 
 type User = {
@@ -19,6 +20,18 @@ type ProfileExtras = {
   location?: string;
   crops?: string[]; // top 5
 };
+
+interface WeatherData {
+  temp: number;
+  condition: string;
+  icon: string;
+  humidity: number;
+  wind_speed: number;
+}
+
+interface WeatherResponse {
+  weather: WeatherData;
+}
 
 const LS_USER = "pg_user";
 const LS_PROFILE = "pg_profile";
@@ -99,6 +112,47 @@ function Profile() {
     setLocation(extras.location || "");
     setCropsText((extras.crops || []).join(", "));
   }, [extras]);
+  // weather api funny stuff
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { address } = useLocation();
+  useEffect(() => {
+    if (!address) {
+      setWeather(null);
+      setError("Por favor ingresa una dirección para ver el clima.");
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchWeather = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const encoded = encodeURIComponent(address);
+        const nowRes = await api.get<WeatherResponse>(
+          `/api/alerts/weather/now?address=${encoded}`
+        );
+
+        if (!cancelled) setWeather(nowRes.data.weather);
+      } catch (err) {
+        if (cancelled) return;
+        console.error(err);
+        setError("No se pudo cargar la información del clima en este momento.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchWeather();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [address]);
 
   const saveExtras = async () => {
     const crops = cropsText
@@ -123,12 +177,10 @@ function Profile() {
       });
       setUser(data);
       localStorage.setItem(LS_USER, JSON.stringify(data));
-    } catch {
-      
-    }
+    } catch {}
   };
 
-  // subir avatar 
+  // subir avatar
   const handleAvatarChange = async (file?: File) => {
     if (!file) return;
     const blobUrl = URL.createObjectURL(file);
@@ -136,7 +188,7 @@ function Profile() {
     setUploading(true);
     try {
       const fd = new FormData();
-      fd.append("file", file); 
+      fd.append("file", file);
       const { data } = await api.post<User>("../api/users/me/avatar", fd);
       setUser(data);
       localStorage.setItem(LS_USER, JSON.stringify(data));
@@ -145,8 +197,8 @@ function Profile() {
     } finally {
       setUploading(false);
       URL.revokeObjectURL(blobUrl);
-  }
-};
+    }
+  };
 
   return (
     <MainContent title="Perfil">
@@ -168,16 +220,26 @@ function Profile() {
                     <img
                       src={avatarPreview}
                       alt="preview"
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
                     />
                   ) : fullAvatar ? (
                     <img
                       src={fullAvatar}
                       alt="avatar"
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
                     />
                   ) : (
-                    <span className="fs-3 fw-bold text-secondary">{initials}</span>
+                    <span className="fs-3 fw-bold text-secondary">
+                      {initials}
+                    </span>
                   )}
 
                   {/* input de archivo discreto */}
@@ -255,7 +317,10 @@ function Profile() {
                   <h6 className="text-muted small">🌱 CULTIVOS PRINCIPALES</h6>
                   <div className="mt-3">
                     {extras.crops.map((c) => (
-                      <span key={c} className="badge bg-secondary me-2 mb-2 p-2">
+                      <span
+                        key={c}
+                        className="badge bg-secondary me-2 mb-2 p-2"
+                      >
                         {c}
                       </span>
                     ))}
@@ -272,23 +337,37 @@ function Profile() {
             <div className="card-body">
               <h5 className="card-title">Clima de hoy</h5>
               <div className="text-center my-4">
-                <div className="display-4">🌦️</div>
-                <div className="fs-1 fw-bold">22°C</div>
-                <div className="text-muted">Parcialmente nublado</div>
-              </div>
-              <div className="d-flex justify-content-around text-center mb-4">
-                <div>
-                  <small className="text-muted">Mín</small>
-                  <div>12°</div>
-                </div>
-                <div>
-                  <small className="text-muted">Máx</small>
-                  <div>25°</div>
-                </div>
-                <div>
-                  <small className="text-muted">Humedad</small>
-                  <div>58%</div>
-                </div>
+                {loading && <p className="text-muted">Cargando clima...</p>}
+                {error && (
+                  <div className="alert alert-warning py-2">{error}</div>
+                )}
+                {weather && (
+                  <div className="d-flex align-items-center">
+                    <img
+                      src={`https://openweathermap.org/img/wn/${weather.icon}@4x.png`}
+                      alt={weather.condition}
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        imageRendering: "pixelated",
+                      }}
+                    />
+                    <div className="ms-3">
+                      <h2 className="display-4 fw-bold">
+                        {Math.round(weather.temp)}°C
+                      </h2>
+                      <p className="lead text-capitalize mb-0">
+                        {weather.condition}
+                      </p>
+                    </div>
+                    <div className="ms-auto text-end">
+                      <p className="mb-1">Humedad: {weather.humidity}%</p>
+                      <p className="mb-0">
+                        Viento: {Math.round(weather.wind_speed)} km/h
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="d-grid">
                 <button className="btn btn-success">Configurar alertas</button>

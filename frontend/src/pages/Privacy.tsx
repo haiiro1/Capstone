@@ -4,7 +4,7 @@ function Privacy() {
       <h2 className="fw-bold mb-4">Política de Privacidad</h2>
       <p className="text-muted">Última actualización: 21 de septiembre de 2025</p>
       <hr className="mb-4"/>
-      
+
       <h5>1. Información que Recopilamos</h5>
       <p>Para proporcionarle el servicio PlantGuard, recopilamos la siguiente información:</p>
       <ul>
@@ -21,12 +21,12 @@ function Privacy() {
         <li>Para comunicarnos con usted, incluyendo el envío de notificaciones de servicio y alertas climáticas.</li>
         <li><strong>Para mejorar nuestro modelo de IA:</strong> Las imágenes que sube se utilizan de forma anónima para re-entrenar y mejorar la precisión de nuestro sistema de diagnóstico.</li>
       </ul>
-      
+
       <h5>3. Seguridad de los Datos</h5>
       <p>Implementamos medidas de seguridad técnicas y organizativas para proteger sus datos personales contra el acceso no autorizado, la alteración, la divulgación o la destrucción. Todas las comunicaciones con nuestros servidores están cifradas mediante SSL/TLS.</p>
 
       <hr className="mt-5"/>
-     
+
     </>
   );
 }
