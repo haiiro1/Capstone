@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import Navbar from "../components/Navbar"; 
+import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 function MainLayout() {
@@ -8,7 +8,7 @@ function MainLayout() {
       <Navbar />
 
       <main className="flex-grow-1">
-        <Outlet /> 
+        <Outlet />
         {/* aquí se inyectan las vistas */}
       </main>
 

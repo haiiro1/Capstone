@@ -29,7 +29,6 @@ function History() {
         <div className="card-body">
           {/* Usaremos un list-group para simular la tabla */}
           <div className="list-group list-group-flush">
-            
             {/* Cabecera de la "Tabla" */}
             <div className="list-group-item d-none d-md-flex">
               <div className="row w-100">
@@ -39,7 +38,6 @@ function History() {
                 <div className="col-md-3 fw-bold">Acciones</div>
               </div>
             </div>
-
             {/* Filas de datos */}
             {/* Hacemos un "map" sobre los datos de ejemplo para crear una fila por cada uno */}
             {historialData.map((item) => (

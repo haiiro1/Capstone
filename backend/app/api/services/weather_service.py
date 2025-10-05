@@ -5,14 +5,15 @@ from dotenv import load_dotenv
 from collections import defaultdict, Counter
 from datetime import datetime, date, timedelta
 
-from app.utils.utils import get_weather
+from app.utils.utils import fetch_json
 
 load_dotenv()
 
 OPENWEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 OPENWEATHER_URL = os.getenv("OPENWEATHER_URL")
 OPENWEATHER_URL_FORECAST = os.getenv("OPENWEATHER_URL_FORECAST")
-
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
+GEOCODE_URL = os.getenv("GEOCODE_URL")
 # We use these placeholder alert rules for now, as they will eventually be obtained from,
 # the user_weather_prefs table, instead of setting them like they are at the time.
 FROST_THRESHOLD_C = 1
@@ -71,15 +72,20 @@ async def get_forecast(lat: float, lon: float, for_alerts: bool = True):
     if not OPENWEATHER_API_KEY:
         return {"error": "Weather API key not configured"}
 
-    data = await get_weather(OPENWEATHER_URL_FORECAST, params)
+    data = await fetch_json(OPENWEATHER_URL_FORECAST, params)
 
     if "list" not in data:
         return {"error": "Unexpected response format", "raw": data}
 
     # Since we need to display the forecast, we have to parse 'dt' from the API as well,
     # Problem is, it's useless for display if raw, so we convert it into standard time.
+    tz_offset = data.get("city", {}).get("timezone", 0)
+    today_local = (datetime.utcnow() + timedelta(seconds=tz_offset)).date()
     for entry in data["list"]:
-        day = datetime.utcfromtimestamp(entry["dt"]).date()
+        dt_local = datetime.utcfromtimestamp(entry["dt"] + tz_offset)
+        day = dt_local.date()
+        if day < today_local:
+            continue
         grouped[day].append(entry)
 
     # We set the fetched forecast data so we only display the min-max temperature data for an entire day.
@@ -89,6 +95,8 @@ async def get_forecast(lat: float, lon: float, for_alerts: bool = True):
         temps = [e["main"]["temp"] for e in entries]
         conditions = [e["weather"][0]["main"] for e in entries]
         icons = [e["weather"][0]["icon"] for e in entries]
+        common_icon = Counter(icons).most_common(1)[0][0]
+        day_icon = common_icon[:-1] + "d"
         descriptions = [e["weather"][0]["description"] for e in entries]
         day = {
             "date": day.isoformat(),
@@ -96,7 +104,7 @@ async def get_forecast(lat: float, lon: float, for_alerts: bool = True):
             "max_temp": round(max(temps)),
             "condition": Counter(conditions).most_common(1)[0][0],
             "description": Counter(descriptions).most_common(1)[0][0],
-            "icon": Counter(icons).most_common(1)[0][0],
+            "icon": day_icon,
             # necessary to avoid getting entries into the /forecast, that way only get_alerts get this item.
             **({"entries": entries} if for_alerts else {}),
         }
@@ -121,7 +129,9 @@ async def get_alerts(lat: float, lon: float):
         if f["max_temp"] >= HEATWAVE_THRESHOLD_C:
             alerts.append("Ola de calor")
 
-        if any("rain" in e and e["rain"].get("3h", 0) >= RAIN_MM_THRESHOLD for e in entries):
+        if any(
+            "rain" in e and e["rain"].get("3h", 0) >= RAIN_MM_THRESHOLD for e in entries
+        ):
             alerts.append("Posibilidad de lluvias intensas")
 
         if any(e["wind"]["speed"] * 3.6 >= WIND_KPH_THRESHOLD for e in entries):
@@ -133,3 +143,42 @@ async def get_alerts(lat: float, lon: float):
         return []
 
     return events
+
+
+async def get_lat_lon(address: str):
+    """
+    Method that will get the lat/lot for the weather services,
+    utilizing Google Maps geocoding API.
+    """
+    params = {
+        "address": address,
+        "key": GOOGLE_MAPS_API_KEY,
+    }
+    if not GOOGLE_MAPS_API_KEY:
+        return {"error": "API_KEY_MISSING"}
+
+    data = await fetch_json(GEOCODE_URL, params)
+
+    if "error" in data:
+        return data
+
+    if data.get("status") != "OK" or not data.get("results"):
+        return {"error": f"Geocoding failed: {data.get('status', 'generic_error')}"}
+
+    result = data["results"][0]
+    location = result["geometry"]["location"]
+    city = "unknown_city"
+    country = "unknown_country"
+    for comp in result.get("address_components", []):
+        types = comp.get("types", [])
+        if "locality" in types:
+            city = comp.get("long_name", city)
+        if "country" in types:
+            country = comp.get("long_name", country)
+
+    return {
+        "lat": location["lat"],
+        "lon": location["lng"],
+        "city": city,
+        "country": country,
+    }
