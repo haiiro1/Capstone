@@ -41,6 +41,7 @@ function Login() {
 
       //trae el usuario actual y lo guarda
       const me = await api.get("/api/auth/me");
+      console.log("RESPUESTA /api/auth/me:", me);
       localStorage.setItem("pg_user", JSON.stringify(me.data));
 
       navigate("/home");

@@ -7,6 +7,14 @@ from app.db.models import User
 import os, time, secrets
 from fastapi import UploadFile, File
 from app.core.config import settings
+from urllib.parse import urljoin
+import time
+
+def _abs_media_url(request: Request, rel_path: str | None) -> str | None:
+    if not rel_path:
+        return None
+    base = str(request.base_url).rstrip("/")
+    return urljoin(base + "/", rel_path.lstrip("/"))
 
 router = APIRouter(prefix="/users", tags=["users"])
 
