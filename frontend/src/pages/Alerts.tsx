@@ -10,66 +10,25 @@ interface WeatherData {
   wind_speed: number;
 }
 
-interface ForecastItem {
-  date: string;
-  min_temp: number;
-  max_temp: number;
-  condition: string;
-  description: string;
-  icon: string;
-}
-
-interface AlertItem {
-  date: string;
-  alerts: string[];
-}
-
-
 function Alerts() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [forecast, setForecast] = useState<ForecastItem>([]);
-  const [alerts, setAlerts] = useState<AlertItem>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const formatLocalDate = (isoDate: string, options?: Intl.DateTimeFormatOptions) => {
-    return new Date(isoDate).toLocaleDateString("es-CL", options);
-  };
-
+  
   useEffect(() => {
-    const fetchAll = async () => {
+    const fetchWeather = async () => {
       try {
         setLoading(true);
-        // the lat and lot are currently set to a village in nunavut to show the alerts,
-        // STGO lan/lot is -33.45/-70.68
-        const [nowRes, forecastRes, eventsRes] = await Promise.all([
-          api.get("/api/alerts/weather/now?lat=63&lon=-68.66"),
-          api.get("/api/alerts/weather/forecast?lat=63&lon=-68.66"),
-          api.get("/api/alerts/weather/events?lat=63&lon=-68.66"),
-        ]);
-
-        setWeather(nowRes.data);
-        const today = new Date();
-        const forecastData: ForecastItem[] = (forecastRes.data || []).filter(
-          (day) => {
-            const dayDate = new Date(day.date);
-            return !(
-              dayDate.getDate() === today.getDate() &&
-              dayDate.getMonth() === today.getMonth() &&
-              dayDate.getFullYear() === today.getFullYear()
-            );
-          }
-        );
-        setForecast(forecastData);
-        setAlerts(eventsRes.data || []);
+        const response = await api.get("/api/alerts/weather/now?lat=-33.45&lon=-70.66");
+        setWeather(response.data);
       } catch (err) {
-        console.error(err);
         setError("No se pudo cargar la información del clima en este momento.");
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchAll();
+    fetchWeather();
   }, []);
 
   return (
@@ -84,9 +43,9 @@ function Alerts() {
               {error && <div className="alert alert-warning py-2">{error}</div>}
               {weather && (
                 <div className="d-flex align-items-center">
-                  <img
-                    src={`https://openweathermap.org/img/wn/${weather.icon}@4x.png`}
-                    alt={weather.condition}
+                  <img 
+                    src={`https://openweathermap.org/img/wn/${weather.icon}@4x.png`} 
+                    alt={weather.condition} 
                     style={{ width: '100px', height: '100px', imageRendering: 'pixelated' }}
                   />
                   <div className="ms-3">
@@ -107,29 +66,27 @@ function Alerts() {
         <div className="col-lg-6 mb-4">
           <div className="card h-100">
             <div className="card-body">
-              <h5 className="card-title">Próximas alertas</h5>
-              {alerts.length === 0 ? (
-                <p className="text-muted mt-3">No hay alertas activas en tu zona.</p>
-              ) : (
-                <ul className="list-group list-group-flush mt-3">
-                  {alerts.map((alert) => (
-                  <li key={alert.date} className="list-group-item px-0">
-                      <strong>
-                        {formatLocalDate(alert.date, {
-                          weekday: "long",
-                          day: "numeric",
-                          month: "short",
-                        })}
-                      </strong>
-                      <ul className="mt-1 mb-0 ps-3">
-                        {alert.alerts.map((a, i) => (
-                          <li key={i}>{a}</li>
-                        ))}
-                      </ul>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <h5 className="card-title">Próximas alertas (wireframe)</h5>
+              <ul className="list-group list-group-flush mt-3">
+                <li className="list-group-item d-flex justify-content-between align-items-center px-0">
+                  <div>
+                    <span>☔️</span> Lluvias intensas (mañana)
+                  </div>
+                  <span className="text-muted">Severidad: Media</span>
+                </li>
+                <li className="list-group-item d-flex justify-content-between align-items-center px-0">
+                  <div>
+                    <span>❄️</span> Heladas (72h)
+                  </div>
+                  <span className="text-muted">Severidad: Alta</span>
+                </li>
+                <li className="list-group-item d-flex justify-content-between align-items-center px-0">
+                  <div>
+                    <span>☀️</span> Ola de calor (5 días)
+                  </div>
+                  <span className="text-muted">Severidad: Baja</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
@@ -160,38 +117,7 @@ function Alerts() {
             </div>
           </div>
         </div>
-      <div className="col-lg-12 mb-4">
-        <div className="card shadow-sm">
-          <div className="card-body">
-            <h5 className="card-title mb-3">Pronóstico</h5>
-            <div className="d-flex flex-wrap gap-3 justify-content-center">
-              {forecast.map((day) => (
-                <div key={day.date} className="d-flex align-items-center border rounded p-2">
-                  <img
-                    src={`https://openweathermap.org/img/wn/${day.icon}@4x.png`}
-                    alt={day.description}
-                    style={{ width: '100px', height: '100px', imageRendering: 'pixelated' }}
-                  />
-                  <div className="ms-2">
-                    <h6 className="mb-1">
-                    {formatLocalDate(day.date, {
-                      weekday: "short",
-                      day: "numeric",
-                      month: "short",
-                    })}
-                    </h6>
-                    <p className="mb-0">
-                      {day.min_temp}°C / {day.max_temp}°C
-                    </p>
-                    <small className="text-muted text-capitalize">{day.condition}</small>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
-    </div>
     </MainContent>
   );
 }
