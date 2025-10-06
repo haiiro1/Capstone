@@ -17,7 +17,6 @@ from app.db.session import SessionLocal
 app = FastAPI(title="PlantGuard API", version="1.0.0")
 
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -28,6 +27,7 @@ app.add_middleware(
     max_age=3600,
 )
 
+
 # DB dependency
 def get_db():
     db = SessionLocal()
@@ -36,24 +36,29 @@ def get_db():
     finally:
         db.close()
 
+
 # --- Health / root (útil en Render) ---
 @app.get("/health", include_in_schema=False)
 def health():
     return {"status": "ok"}
 
+
 @app.head("/", include_in_schema=False)
 def root_head():
     return JSONResponse({}, status_code=200)
 
+
 @app.get("/", include_in_schema=False)
 def root():
     return RedirectResponse("/docs")
+
 
 # --- Chequeo DB (SQLAlchemy 2.x) ---
 @app.get("/db-check")
 def db_check(db: Session = Depends(get_db)):
     row = db.execute(text("select 'hello neon'")).fetchone()  # <- usa text(...)
     return {"db": row[0] if row else None}
+
 
 # --- Routers ---
 app.include_router(api_router, prefix="/api")
@@ -65,4 +70,6 @@ app.include_router(weather_router, prefix="/api", tags=["Weather"])
 # --- Archivos estáticos (Revisar que exista la carpeta) ---
 # settings.MEDIA_URL_PREFIX debe empezar con "/" (ej. "/media")
 # settings.MEDIA_DIR debe existir en runtime
-app.mount(settings.MEDIA_URL_PREFIX, StaticFiles(directory=settings.MEDIA_DIR), name="media")
+app.mount(
+    settings.MEDIA_URL_PREFIX, StaticFiles(directory=settings.MEDIA_DIR), name="media"
+)
