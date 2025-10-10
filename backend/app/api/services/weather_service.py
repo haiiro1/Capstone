@@ -1,6 +1,5 @@
 import httpx
 import os
-from fastapi import HTTPException
 from dotenv import load_dotenv
 from collections import defaultdict, Counter
 from datetime import datetime, date, timedelta
@@ -33,7 +32,7 @@ async def get_current_weather(lat: float, lon: float):
         "lon": lon,
         "appid": OPENWEATHER_API_KEY,
         "units": "metric",  # Para que la temperatura venga en Celsius
-        "lang": "es",  # Para que la descripción venga en español
+        "lang": "es",       # Para que la descripción venga en español
     }
 
     # Hacemos la llamada a la API externa

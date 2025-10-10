@@ -23,7 +23,7 @@ class UserOut(BaseModel):
     company: Optional[str] = None
     location: Optional[str] = None
     crops: Optional[List[str]] = None
-    avatar_url: Optional[str] = None  # Se calcula desde avatar_path en el router
+    avatar_url: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 class UserProfileUpdate(BaseModel):
