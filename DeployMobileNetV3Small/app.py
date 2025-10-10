@@ -3,7 +3,7 @@ import io
 import json
 import uvicorn
 import numpy as np
-from fastapi import FastAPI, UploadFlie, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from PIL import Image
 import tensorflow as tf
 from tensorflow import keras
@@ -84,7 +84,7 @@ def home():
     return {"message": "API de classificacion de imagenes con MobileNetV3Small esta operativa!"}
 
 @app.post("/predict")
-async def predict(file: UploadFlie = File(...)):
+async def predict(file: UploadFile = File(...)):
     " CLasifica imagenes con un modelo MobileNetV3Small entrenado (no con ImageNet). Devuelve las top k calses predichas"
 
     try:
