@@ -1,6 +1,7 @@
 import os
 import io
 import json
+import uvicorn
 import numpy as np
 from fastapi import FastAPI, UploadFlie, File, HTTPException
 from PIL import Image
@@ -107,3 +108,6 @@ async def predict(file: UploadFlie = File(...)):
         "top_k": TOP_K,
         "predictions": results
     }
+
+if __name__ == "__main__":
+    uvicorn.run(app, host = "0.0.0.0", port  = 8000)
