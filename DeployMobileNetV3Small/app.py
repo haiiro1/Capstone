@@ -48,7 +48,7 @@ if not class_names_en or not class_names_es:
 # Preprocesamiento de la imagen
 # ---------------------------------
 
-preprocess = keras.applications.mobilnet_v3.preprocess_input
+preprocess = keras.applications.mobilenet_v3.preprocess_input
 
 def prepare_image(pil_img: Image.Image) -> np.array:
     pil_img = pil_img.convert("RGB").resize(IMG_SIZE)
