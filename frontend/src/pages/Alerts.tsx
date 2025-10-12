@@ -134,10 +134,14 @@ function Alerts() {
         <div className="col-lg-12 mb-4">
           <div className="card shadow-sm">
             <div className="card-body">
-              <h5 className="card-title mb-3">
-                Clima actual en{" "}
-                {address_dsply ? `${address_dsply.city}, ${address_dsply.country}` : "tu zona"}
-              </h5>
+                <h5 className="card-title mb-3">
+                  Clima actual en{" "}
+                  {address_dsply?.city && address_dsply?.country
+                    ? `${address_dsply.city}, ${address_dsply.country}`
+                    : address_dsply?.country
+                    ? address_dsply.country
+                    : "tu zona"}
+                </h5>
               {loading && <p className="text-muted">Cargando clima...</p>}
               {error && <div className="alert alert-warning py-2">{error}</div>}
               {weather && (

@@ -164,20 +164,27 @@ async def get_lat_lon(address: str):
     if data.get("status") != "OK" or not data.get("results"):
         return {"error": f"Geocoding failed: {data.get('status', 'generic_error')}"}
 
+    city = None
+    country = None
     result = data["results"][0]
     location = result["geometry"]["location"]
-    city = "unknown_city"
-    country = "unknown_country"
-    for comp in result.get("address_components", []):
+    components = result.get("address_components", [])
+    for comp in components:
         types = comp.get("types", [])
         if "locality" in types:
-            city = comp.get("long_name", city)
-        if "country" in types:
-            country = comp.get("long_name", country)
+            city = comp["long_name"]
+        elif "administrative_area_level_2" in types and not city:
+            city = comp["long_name"]
+        elif "administrative_area_level_1" in types and not city:
+            city = comp["long_name"]
+        elif "country" in types:
+            country = comp["long_name"]
 
     return {
         "lat": location["lat"],
         "lon": location["lng"],
-        "city": city,
-        "country": country,
+        "address": {
+            "city": city,
+            "country": country,
+        },
     }
