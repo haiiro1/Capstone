@@ -10,8 +10,6 @@ from app.api.services.weather_service import (
 
 router = APIRouter()
 
-router = APIRouter()
-
 @router.get("/alerts/weather/now")
 async def read_current_weather(
     address: str = Query(..., description="Full address or location name")
