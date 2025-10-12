@@ -44,13 +44,26 @@ function Profile() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  const API_ORIGIN = useMemo(() => {
+  try {
+    return new URL(import.meta.env.VITE_API_URL || "http://localhost:8000/api").origin;
+  } catch {
+    return "http://localhost:8000";
+  }
+}, []);
+
   const fullAvatar = useMemo(() => {
-    if (!user?.avatar_url) return null;
-    return user.avatar_url.startsWith("http")
-      ? user.avatar_url
-      : `${apiBase}${user.avatar_url}`;
-  }, [user, apiBase]);
+    if (!user?.avatar_url && !user?.avatar_url) return null;
+
+    // prioriza avatar_url (absoluta o relativa)
+    const url = user.avatar_url || user.avatar_url;
+
+    // si ya es absoluta (https://...), úsala tal cual
+    if (url.startsWith("http")) return url;
+
+    // si es relativa (/media/...), prepéndele la API
+    return `${API_ORIGIN}${url}`;
+  }, [user, API_ORIGIN]);
 
   // cargar user de localStorage, con fallback a /me
   useEffect(() => {
@@ -59,7 +72,6 @@ function Profile() {
       try {
         const parsed = JSON.parse(cached) as User;
         setUser(parsed);
-        // si no hay LS_PROFILE, toma los valores desde el user cacheado
         const ex = localStorage.getItem(LS_PROFILE);
         if (!ex) {
           setExtras({
@@ -218,6 +230,7 @@ function Profile() {
                   {/* muestra imagen si existe o preview; si no, iniciales */}
                   {avatarPreview ? (
                     <img
+                      key="preview"
                       src={avatarPreview}
                       alt="preview"
                       style={{
@@ -228,7 +241,8 @@ function Profile() {
                     />
                   ) : fullAvatar ? (
                     <img
-                      src={fullAvatar}
+                      key={fullAvatar || "noavatar"}
+                      src={fullAvatar || ""}
                       alt="avatar"
                       style={{
                         width: "100%",

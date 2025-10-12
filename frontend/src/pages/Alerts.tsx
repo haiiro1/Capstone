@@ -107,6 +107,7 @@ function Alerts() {
         if (cancelled) return;
         console.error(err);
         setError("No se pudo cargar la información del clima en este momento.");
+        console.error(err);
       } finally {
         if (!cancelled) setLoading(false);
       }
