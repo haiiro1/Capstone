@@ -1,5 +1,5 @@
 # aqui va los endpoints de perfil si los necesitas
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from app.schemas.user import UserOut, UserProfileUpdate
 from app.api.routers.auth import get_current_user, get_db
