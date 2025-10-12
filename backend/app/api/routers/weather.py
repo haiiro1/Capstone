@@ -27,12 +27,7 @@ async def read_current_weather(
     if "error" in weather_data:
         raise HTTPException(status_code=400, detail=weather_data["error"])
 
-    resolved_address = {
-        "city": coords.get("city", "unknown_city"),
-        "country": coords.get("country", "unknown_country"),
-    }
-
-    return {"address": resolved_address, "weather": weather_data}
+    return {"address": coords["address"], "weather": weather_data}
 
 
 @router.get("/alerts/weather/forecast")
