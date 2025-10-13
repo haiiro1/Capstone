@@ -10,13 +10,10 @@ export interface PredictResponse {
   predictions: PredictionItem[];
 }
 
-const BACKEND = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
-
 export async function predictDisease(file: File, signal?: AbortSignal): Promise<PredictResponse> {
-  const url = `${BACKEND}/api/plant/predict`;
   const form = new FormData();
   form.append("file", file, file.name);
-  const res = await api.post<PredictResponse>(url, form, {
+  const res = await api.post<PredictResponse>("/api/plant/predict", form, {
     headers: { "Content-Type": "multipart/form-data" },
     signal,
   });
