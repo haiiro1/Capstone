@@ -1,3 +1,5 @@
+import api from "../lib/api";
+
 export interface PredictionItem {
   label: string;
   score: number;
@@ -8,30 +10,12 @@ export interface PredictResponse {
   predictions: PredictionItem[];
 }
 
-const MODEL_BASE = import.meta.env.VITE_PREDICT_API;
-
-export async function predictDisease(file: File, abortSignal?: AbortSignal): Promise<PredictResponse> {
+export async function predictDisease(file: File, signal?: AbortSignal): Promise<PredictResponse> {
   const form = new FormData();
   form.append("file", file, file.name);
-
-  const res = await fetch(`${MODEL_BASE}/predict`, {
-    method: "POST",
-    body: form,
-    signal: abortSignal,
+  const res = await api.post<PredictResponse>("/api/plant/predict", form, {
+    headers: { "Content-Type": "multipart/form-data" },
+    signal,
   });
-
-  if (!res.ok) {
-    const msg = await safeText(res);
-    throw new Error(`Respuesta: ${res.status}: ${msg || res.statusText}`);
-  }
-
-  const json = (await res.json()) as PredictResponse;
-  if (!json || typeof json.top_k !== "number" || !Array.isArray(json.predictions)) {
-    throw new Error("API_UNEXPECTED_RESPONSE");
-  }
-  return json;
-}
-
-async function safeText(r: Response) {
-  try { return await r.text(); } catch { return ""; }
+  return res.data as { top_k: number; predictions: { label: string; score: number }[] };
 }
