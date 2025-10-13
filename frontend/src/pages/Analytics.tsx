@@ -189,9 +189,14 @@ function Analytics() {
                   Sube una imagen y presiona “Analizar”.
                 </div>
               )}
-              {!loading && result && (
+              {!loading && result && result.predictions.length === 0 && (
+                <div className="alert alert-success mt-3" role="alert">
+                  No se detectaron enfermedades!
+                </div>
+              )}
+              {loading && result && result.predictions.length > 0 && (
                 <div className="mt-2">
-                  <p className="mb-1 text-muted small">Etiqueta (Top-1)</p>
+                  <p className="mb-1 text-muted small">Analisis</p>
                   <h4 className="mb-2">
                     {top1?.label ?? "—"}{" "}
                     {typeof top1?.score === "number" ? (
@@ -201,14 +206,12 @@ function Analytics() {
                     ) : null}
                   </h4>
                   <hr />
-                  <p className="mb-1 text-muted small">
-                    Top-{result.top_k} predicciones
-                  </p>
+                  <p className="mb-1 text-muted small">Predicciones</p>
                   <div className="table-responsive">
                     <table className="table table-sm align-middle mb-0">
                       <thead>
                         <tr>
-                          <th>Etiqueta</th>
+                          <th>Enfermedades</th>
                           <th className="text-end">Confianza</th>
                         </tr>
                       </thead>
@@ -227,9 +230,7 @@ function Analytics() {
                     </table>
                   </div>
                   <details className="mt-3">
-                    <summary className="small text-muted">
-                      Ver JSON
-                    </summary>
+                    <summary className="small text-muted">Ver JSON</summary>
                     <pre className="mt-2 mb-0 small">
                       {JSON.stringify(result, null, 2)}
                     </pre>

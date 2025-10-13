@@ -25,15 +25,17 @@ export async function predictDisease(
   const raw = res.data;
   const top_k = Number(raw?.top_k ?? 0);
 
-  const predictions = (raw?.predictions ?? []).map((p: any) => ({
-    label: p.labels_es || p.label_en || "—",
-    score:
-      typeof p.probabilty === "number"
-        ? p.probabilty
-        : typeof p.probability === "number"
-        ? p.probability
-        : 0,
-  }));
+  const predictions = (raw?.predictions ?? [])
+    .map((p: any) => ({
+      label: p.labels_es || p.label_en || "—",
+      score:
+        typeof p.probabilty === "number"
+          ? p.probabilty
+          : typeof p.probability === "number"
+          ? p.probability
+          : 0,
+    }))
+    .filter((p) => p.score >= 0.01);
 
   return { top_k, predictions };
 }
