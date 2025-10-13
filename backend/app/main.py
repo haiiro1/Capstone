@@ -63,7 +63,7 @@ def db_check(db: Session = Depends(get_db)):
 
 # --- Routers ---
 app.include_router(api_router, prefix="/api")
-app.include_router(plant_router.router)
+app.include_router(plant_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
 app.include_router(weather_router, prefix="/api", tags=["Weather"])

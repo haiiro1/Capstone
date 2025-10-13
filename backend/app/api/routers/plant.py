@@ -3,7 +3,7 @@ import httpx
 from fastapi import APIRouter, UploadFile, File, HTTPException, Request
 import httpx
 
-router = APIRouter(prefix="/api/plant", tags=["plant"])
+router = APIRouter(prefix="/plant", tags=["plant"])
 PREDICT_URL = os.getenv("PREDICT_URL")
 PREDICT_TIMEOUT = float(os.getenv("PREDICT_TIMEOUT", "60"))
 
