@@ -4,13 +4,12 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, Request
 from starlette.exceptions import ClientDisconnect
 import asyncio, httpx
 
-router = APIRouter()
-
+router = APIRouter(prefix="/api/plant", tags=["plant"])
 PREDICT_URL = os.getenv("PREDICT_URL")
 PREDICT_TIMEOUT = float(os.getenv("PREDICT_TIMEOUT", "60"))
 
 
-@router.post("/plant/predict")
+@router.post("/predict")
 async def proxy_predict(request: Request, file: UploadFile = File(...)):
     try:
         contents = await file.read()
