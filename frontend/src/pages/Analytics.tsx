@@ -1,7 +1,6 @@
-// src/pages/Analytics.tsx
 import { useCallback, useMemo, useRef, useState } from "react";
 import MainContent from "../components/MainContent";
-import { predictDisease, type PredictResponse } from "../lib/PlantPredict";
+import { predictDisease, type PredictResponse } from "../lib/plantPredict";
 
 function Analytics() {
   const [file, setFile] = useState<File | null>(null);
