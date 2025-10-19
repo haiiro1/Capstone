@@ -10,12 +10,32 @@ export interface PredictResponse {
   predictions: PredictionItem[];
 }
 
-export async function predictDisease(file: File, signal?: AbortSignal): Promise<PredictResponse> {
+export async function predictDisease(
+  file: File,
+  signal?: AbortSignal
+): Promise<PredictResponse> {
   const form = new FormData();
   form.append("file", file, file.name);
-  const res = await api.post<PredictResponse>("/api/plant/predict", form, {
+
+  const res = await api.post("/api/plant/predict", form, {
     headers: { "Content-Type": "multipart/form-data" },
     signal,
   });
-  return res.data as { top_k: number; predictions: { label: string; score: number }[] };
+
+  const raw = res.data;
+  const top_k = Number(raw?.top_k ?? 0);
+
+  const predictions = (raw?.predictions ?? [])
+    .map((p: any) => ({
+      label: p.labels_es || p.label_en || "—",
+      score:
+        typeof p.probabilty === "number"
+          ? p.probabilty
+          : typeof p.probability === "number"
+          ? p.probability
+          : 0,
+    }))
+    .filter((p) => p.score >= 0.01);
+
+  return { top_k, predictions };
 }

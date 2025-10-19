@@ -184,58 +184,77 @@ function Analytics() {
                   <p className="text-muted small mt-3">Analizando imagen…</p>
                 </div>
               )}
+              {!loading && error && (
+                <div className="alert alert-danger mt-3" role="alert">
+                  {error}
+                </div>
+              )}
               {!loading && !result && !error && (
                 <div className="text-muted">
                   Sube una imagen y presiona “Analizar”.
                 </div>
               )}
-              {!loading && result && (
-                <div className="mt-2">
-                  <p className="mb-1 text-muted small">Etiqueta (Top-1)</p>
-                  <h4 className="mb-2">
-                    {top1?.label ?? "—"}{" "}
-                    {typeof top1?.score === "number" ? (
-                      <span className="fs-6 text-muted">
-                        ({Math.round((top1.score ?? 0) * 100)}%)
-                      </span>
-                    ) : null}
-                  </h4>
-                  <hr />
-                  <p className="mb-1 text-muted small">
-                    Top-{result.top_k} predicciones
-                  </p>
-                  <div className="table-responsive">
-                    <table className="table table-sm align-middle mb-0">
-                      <thead>
-                        <tr>
-                          <th>Etiqueta</th>
-                          <th className="text-end">Confianza</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[...result.predictions]
-                          .sort((a, b) => b.score - a.score)
-                          .map((p, idx) => (
-                            <tr key={`${p.label}-${idx}`}>
-                              <td>{p.label}</td>
-                              <td className="text-end">
-                                {Math.round(p.score * 100)}%
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
+              {!loading &&
+                result &&
+                result.predictions.length === 0 &&
+                !error && (
+                  <div className="alert alert-success mt-3" role="alert">
+                    No se detectaron enfermedades!
                   </div>
-                  <details className="mt-3">
-                    <summary className="small text-muted">
-                      Ver JSON
-                    </summary>
-                    <pre className="mt-2 mb-0 small">
-                      {JSON.stringify(result, null, 2)}
-                    </pre>
-                  </details>
-                </div>
-              )}
+                )}
+              {!loading &&
+                result &&
+                result.predictions.length > 0 &&
+                !error && (
+                  <div className="mt-2">
+                    <p className="mb-1 text-muted small">Análisis</p>
+                    {(() => {
+                      const top1 = [...result.predictions].sort(
+                        (a, b) => b.score - a.score
+                      )[0];
+                      return (
+                        <h4 className="mb-2">
+                          {top1?.label ?? "—"}{" "}
+                          {typeof top1?.score === "number" && (
+                            <span className="fs-6 text-muted">
+                              ({Math.round(top1.score * 100)}%)
+                            </span>
+                          )}
+                        </h4>
+                      );
+                    })()}
+                    <hr />
+                    <p className="mb-1 text-muted small">Predicciones</p>
+                    <div className="table-responsive">
+                      <table className="table table-sm align-middle mb-0">
+                        <thead>
+                          <tr>
+                            <th>Enfermedades</th>
+                            <th className="text-end">Confianza</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[...result.predictions]
+                            .sort((a, b) => b.score - a.score)
+                            .map((p, idx) => (
+                              <tr key={`${p.label}-${idx}`}>
+                                <td>{p.label}</td>
+                                <td className="text-end">
+                                  {Math.round(p.score * 100)}%
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <details className="mt-3">
+                      <summary className="small text-muted">Ver JSON</summary>
+                      <pre className="mt-2 mb-0 small">
+                        {JSON.stringify(result, null, 2)}
+                      </pre>
+                    </details>
+                  </div>
+                )}
             </div>
           </div>
         </div>

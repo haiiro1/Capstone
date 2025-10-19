@@ -11,6 +11,7 @@ from app.api.routes import router as api_router
 from app.api.routers.auth import router as auth_router
 from app.api.routers.users import router as users_router
 from app.api.routers.weather import router as weather_router
+from app.api.routers.plant import router as plant_router
 from app.db.session import SessionLocal
 
 
@@ -62,6 +63,7 @@ def db_check(db: Session = Depends(get_db)):
 
 # --- Routers ---
 app.include_router(api_router, prefix="/api")
+app.include_router(plant_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
 app.include_router(weather_router, prefix="/api", tags=["Weather"])
