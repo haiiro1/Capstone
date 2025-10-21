@@ -104,7 +104,7 @@ function Login() {
             <input type="checkbox" className="form-check-input" id="rememberMe" />
             <label className="form-check-label" htmlFor="rememberMe">Recordarme</label>
           </div>
-          <a href="#!" className="small">¿Olvidaste tu contraseña?</a>
+          <Link to="/forgot-password">¿Olvidaste tu contraseña?</Link>
         </div>
 
         <div className="d-grid mb-3">

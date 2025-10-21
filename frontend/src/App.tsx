@@ -6,7 +6,6 @@ import SimpleLayout from "./Layouts/SimpleLayout";
 import { LocationProvider } from "./contexts/LocationContext";
 import { loadGoogleMaps } from "./utils/GoogleMaps";
 
-
 // Relativo a la página
 import Analizar from "./pages/Analytics";
 import Historial from "./pages/History";
@@ -22,6 +21,10 @@ import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import Verify from "./pages/Auth/Verify";
+import ReVerify from "./pages/Auth/ReVerify";
+import ForgotPassword from "./pages/Auth/ForgotPassword";
+import ResetPassword from "./pages/Auth/ResetPassword";
 
 function App() {
   const [mapsReady, setMapsReady] = useState(false);
@@ -43,6 +46,10 @@ function App() {
         <Route element={<AuthLayout />}>
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/verify" element={<Verify />} />
+          <Route path="/verify/resend" element={<ReVerify />} />
         </Route>
 
         {/* Rutas SimpleLayout */}
