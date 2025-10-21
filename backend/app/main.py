@@ -68,7 +68,6 @@ app.include_router(auth_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
 app.include_router(weather_router, prefix="/api", tags=["Weather"])
 
-
 # --- Archivos estáticos (Revisar que exista la carpeta) ---
 # settings.MEDIA_URL_PREFIX debe empezar con "/" (ej. "/media")
 # settings.MEDIA_DIR debe existir en runtime

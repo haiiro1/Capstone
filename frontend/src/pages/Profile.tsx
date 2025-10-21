@@ -285,10 +285,7 @@ function Profile() {
                   </div>
                 </div>
               </div>
-
               <hr />
-
-              {/* Form extras (local + backend) */}
               <div className="row">
                 <div className="col-md-6 mb-3">
                   <label className="form-label">Empresa</label>
@@ -323,8 +320,6 @@ function Profile() {
                   </button>
                 </div>
               </div>
-
-              {/* Badges de cultivos */}
               {!!extras.crops?.length && (
                 <>
                   <hr />
@@ -344,8 +339,6 @@ function Profile() {
             </div>
           </div>
         </div>
-
-        {/* Columna Derecha: Clima de hoy (placeholder) */}
         <div className="col-lg-4 mb-4">
           <div className="card h-100">
             <div className="card-body">
