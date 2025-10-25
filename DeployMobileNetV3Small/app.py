@@ -106,7 +106,7 @@ def prepare_image(pil_img: Image.Image) -> np.ndarray:
     pil_img = pil_img.convert("RGB").resize(IMG_SIZE)
     arr = keras.utils.img_to_array(pil_img)
     arr = np.expand_dims(arr, axis = 0)
-    return preprocess()
+    return preprocess(arr)
 
 def format_topk(probs: np.ndarray, top_k: int, lang: str) -> List[Dict[str, Any]]:
     k = int(max(1, min(top_k, probs.size)))
