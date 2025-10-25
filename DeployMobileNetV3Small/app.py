@@ -13,7 +13,7 @@ from PIL import Image, UnidentifiedImageError
 import tensorflow as tf
 from tensorflow import keras
 
-MODEL_PATH = "mobilenetv3small_model.keras"
+MODEL_PATH = "./mobileNetV3Small.keras"
 CLASS_MAP = "./class_map_es.json"
 ADVICE_PATH = "./advice.json"
 IMG_SIZE = (224, 224)
