@@ -100,7 +100,7 @@ def get_recomendation(label_en: str) -> Dict[str, Any]:
 # Preprocesamiento idéntico al entrenamiento
 # ------------------------------------------
 
-preprocess = keras.application.mobilenet_v3.preprocess_input
+preprocess = keras.applications.mobilenet_v3.preprocess_input
 
 def prepare_image(pil_img: Image.Image) -> np.ndarray:
     pil_img = pil_img.convert("RGB").resize(IMG_SIZE)
