@@ -1,5 +1,6 @@
 import { Link, useLocation,useNavigate } from "react-router-dom";
 import { TOKEN_KEY } from "../lib/api";
+import ThemeToggleSwitch from "./ThemeToggleSwitch";
 
 function Navbar() {
   const location = useLocation();
@@ -17,7 +18,8 @@ function Navbar() {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg bg-white border-bottom shadow-sm">
+    <nav className="navbar navbar-expand-lg border-bottom shadow-sm">
+      <style>{`.navbar { background-color: var(--bs-body-bg); }`}</style>
       <div className="container">
         <Link className="navbar-brand fw-bold" to="/home">🌱 PlantGuard</Link>
         <button
@@ -35,6 +37,7 @@ function Navbar() {
             <li className="nav-item"><Link className={getLinkClass("/historial")} to="/historial">{getButtonSpan("/historial", "Historial")}</Link></li>
             <li className="nav-item"><Link className={getLinkClass("/alertas")} to="/alertas">{getButtonSpan("/alertas", "Alertas")}</Link></li>
             <li className="nav-item"><Link className={getLinkClass("/perfil")} to="/perfil">{getButtonSpan("/perfil", "Perfil")}</Link></li>
+            <li className="nav-item ms-3"><ThemeToggleSwitch /></li>
             <li className="nav-item ms-3"><button onClick={handleLogout} className="btn btn-outline-danger btn-sm">Cerrar sesión</button></li>
           </ul>
         </div>

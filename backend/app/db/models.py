@@ -24,6 +24,8 @@ class User(Base):
         onupdate=func.now(),
         nullable=False,
     )
+    # Preferencia de tema: 'light' | 'dark' | 'system'
+    theme = Column(String(10), nullable=False, server_default="system")
     company = Column(String(120), nullable=True)
     location = Column(String(120), nullable=True)
     crops = Column(JSONB, nullable=True)
