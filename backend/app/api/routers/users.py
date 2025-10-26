@@ -1,7 +1,7 @@
 # aqui va los endpoints de perfil si los necesitas
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
-from app.schemas.user import UserOut, UserProfileUpdate, ThemeUpdate
+from app.schemas.user import UserOut, UserProfileUpdate
 from app.api.routers.auth import get_current_user, get_db
 from app.db.models import User
 import os, time, secrets
@@ -38,20 +38,6 @@ def update_me(
     if current.avatar_path:
         avatar_url = f"{current.avatar_path}"  # p.ej. "/media/uuid_123.jpg"
     return UserOut.model_validate({**current.__dict__, "avatar_url": avatar_url})
-
-@router.patch("/me/theme", response_model=UserOut)
-def Update_my_theme(
-    payload: ThemeUpdate,
-    db: Session = Depends(get_db),
-    current: User = Depends(get_current_user),
-):
-    current.theme = payload.theme
-    db.add(current)
-    db.commit()
-    db.refresh(current)
-    return UserOut.model_validate(
-        {**current.__dict__, "avatar_url": current.avatar_path}
-    )
 
 
 ALLOWED_MIME = {"image/jpeg", "image/png", "image/webp"}
