@@ -1,10 +1,14 @@
 import httpx
 import os
+from fastapi import Depends, HTTPException
 from dotenv import load_dotenv
 from collections import defaultdict, Counter
 from datetime import datetime, date, timedelta
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from app.utils.utils import fetch_json
+from app.db.models import User, UserWeatherPrefs
 
 load_dotenv()
 
@@ -15,10 +19,6 @@ GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 GEOCODE_URL = os.getenv("GEOCODE_URL")
 # We use these placeholder alert rules for now, as they will eventually be obtained from,
 # the user_weather_prefs table, instead of setting them like they are at the time.
-FROST_THRESHOLD_C = 1
-HEATWAVE_THRESHOLD_C = 32
-RAIN_MM_THRESHOLD = 2
-WIND_KPH_THRESHOLD = 40
 
 
 async def get_current_weather(lat: float, lon: float):
@@ -32,7 +32,7 @@ async def get_current_weather(lat: float, lon: float):
         "lon": lon,
         "appid": OPENWEATHER_API_KEY,
         "units": "metric",  # Para que la temperatura venga en Celsius
-        "lang": "es",       # Para que la descripción venga en español
+        "lang": "es",  # Para que la descripción venga en español
     }
 
     # Hacemos la llamada a la API externa
@@ -112,34 +112,38 @@ async def get_forecast(lat: float, lon: float, for_alerts: bool = True):
     return forecast
 
 
-async def get_alerts(lat: float, lon: float):
+async def get_alerts(
+    lat: float,
+    lon: float,
+    thresholds: dict,
+):
     forecast = await get_forecast(lat, lon, for_alerts=True)
-    today = date.today()
     events = []
 
     for f in forecast:
         entries = f.get("entries", [])
         alerts = []
-        day = datetime.fromisoformat(f["date"]).date()
 
-        if f["min_temp"] <= FROST_THRESHOLD_C:
-            alerts.append("Helada")
+        if f["min_temp"] <= thresholds["FROST"]:
+            alerts.append("Riesgo de estrés por frío")
 
-        if f["max_temp"] >= HEATWAVE_THRESHOLD_C:
-            alerts.append("Ola de calor")
+        if f["max_temp"] >= thresholds["HEAT"]:
+            alerts.append("Riesgo de estrés por térmico")
 
         if any(
-            "rain" in e and e["rain"].get("3h", 0) >= RAIN_MM_THRESHOLD for e in entries
+            "rain" in e and e["rain"].get("3h", 0) >= thresholds["RAIN"]
+            for e in entries
         ):
-            alerts.append("Posibilidad de lluvias intensas")
+            alerts.append("Riesgo de sobresaturación")
 
-        if any(e["wind"]["speed"] * 3.6 >= WIND_KPH_THRESHOLD for e in entries):
-            alerts.append("Vientos de alta intensidad")
+        if any(
+            (e.get("wind", {}).get("speed", 0) * 3.6) >= thresholds["WIND"]
+            for e in entries
+        ):
+            alerts.append("Riesgo de daño por viento")
 
         if alerts:
             events.append({"date": f["date"], "alerts": alerts})
-    if not events:
-        return []
 
     return events
 
@@ -188,3 +192,12 @@ async def get_lat_lon(address: str):
             "country": country,
         },
     }
+
+
+def get_prefs_or_404(db: Session, user_id):
+    prefs = db.execute(
+        select(UserWeatherPrefs).where(UserWeatherPrefs.user_id == user_id)
+    ).scalar_one_or_none()
+    if prefs is None:
+        raise HTTPException(status_code=404, detail="prefs_missing")
+    return prefs

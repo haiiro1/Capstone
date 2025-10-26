@@ -20,7 +20,7 @@ from app.schemas.auth import (
 )
 from app.core.security import digest_hash, make_email_token, load_email_token
 from app.db.session import SessionLocal
-from app.db.models import User
+from app.db.models import User, UserWeatherPrefs
 from app.core.security import (
     get_password_hash,
     verify_password,
@@ -129,6 +129,13 @@ def verify_account(token: str, db: Session = Depends(get_db)):
         last_name=data["last_name"],
         password_hash=data["password_hash"],
     )
+    user.weather_prefs = UserWeatherPrefs(
+        dangerous_frost_threshold=1,
+        dangerous_temp_threshold=32,
+        rain_mm_threshold=2,
+        wind_kph_threshold=40,
+    )
+
     db.add(user)
     db.commit()
     db.refresh(user)
