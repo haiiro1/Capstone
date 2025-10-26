@@ -1,20 +1,29 @@
 # aqui va los endpoints de perfil si los necesitas
-from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy.orm import Session
-from app.schemas.user import UserOut, UserProfileUpdate
-from app.api.routers.auth import get_current_user, get_db
-from app.db.models import User
 import os, time, secrets
-from fastapi import UploadFile, File
-from app.core.config import settings
-from urllib.parse import urljoin
 import time
+
+from urllib.parse import urljoin
+from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File
+from sqlalchemy.orm import Session
+
+from app.schemas.user import UserOut, UserProfileUpdate
+from app.schemas.weather_prefs import (
+    WeatherPrefsBase,
+    WeatherPrefsUpdate,
+    WeatherPrefsOut,
+)
+from app.api.services.weather_service import get_prefs_or_404
+from app.api.routers.auth import get_current_user, get_db
+from app.db.models import User, UserWeatherPrefs
+from app.core.config import settings
+
 
 def _abs_media_url(request: Request, rel_path: str | None) -> str | None:
     if not rel_path:
         return None
     base = str(request.base_url).rstrip("/")
     return urljoin(base + "/", rel_path.lstrip("/"))
+
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -85,4 +94,73 @@ async def upload_avatar(
     db.refresh(current)
     return UserOut.model_validate(
         {**current.__dict__, "avatar_url": current.avatar_path}
+    )
+
+
+@router.get("/me/prefs", response_model=WeatherPrefsOut)
+def get_weather_prefs(
+    db: Session = Depends(get_db),
+    current: User = Depends(get_current_user),
+):
+    prefs = get_prefs_or_404(db, current.id)
+    return WeatherPrefsOut.model_validate(
+        {
+            "user_id": str(prefs.user_id),
+            "dangerous_frost_threshold": prefs.dangerous_frost_threshold,
+            "dangerous_temp_threshold": prefs.dangerous_temp_threshold,
+            "rain_mm_threshold": prefs.rain_mm_threshold,
+            "wind_kph_threshold": prefs.wind_kph_threshold,
+        }
+    )
+
+
+@router.put("/me/prefs", response_model=WeatherPrefsOut)
+def put_weather_prefs(
+    payload: WeatherPrefsBase,
+    db: Session = Depends(get_db),
+    current: User = Depends(get_current_user),
+):
+    prefs = get_prefs_or_404(db, current.id)
+    prefs.dangerous_frost_threshold = payload.dangerous_frost_threshold
+    prefs.dangerous_temp_threshold = payload.dangerous_temp_threshold
+    prefs.rain_mm_threshold = payload.rain_mm_threshold
+    prefs.wind_kph_threshold = payload.wind_kph_threshold
+
+    db.add(prefs)
+    db.commit()
+    db.refresh(prefs)
+    return WeatherPrefsOut.model_validate(
+        {
+            "user_id": str(prefs.user_id),
+            "dangerous_frost_threshold": prefs.dangerous_frost_threshold,
+            "dangerous_temp_threshold": prefs.dangerous_temp_threshold,
+            "rain_mm_threshold": prefs.rain_mm_threshold,
+            "wind_kph_threshold": prefs.wind_kph_threshold,
+        }
+    )
+
+
+@router.patch("/me/prefs", response_model=WeatherPrefsOut)
+def patch_weather_prefs(
+    payload: WeatherPrefsUpdate,
+    db: Session = Depends(get_db),
+    current: User = Depends(get_current_user),
+):
+    prefs = get_prefs_or_404(db, current.id)
+    data = payload.model_dump(exclude_unset=True)
+    for field, value in data.items():
+        setattr(prefs, field, value)
+
+    db.add(prefs)
+    db.commit()
+    db.refresh(prefs)
+
+    return WeatherPrefsOut.model_validate(
+        {
+            "user_id": str(prefs.user_id),
+            "dangerous_frost_threshold": prefs.dangerous_frost_threshold,
+            "dangerous_temp_threshold": prefs.dangerous_temp_threshold,
+            "rain_mm_threshold": prefs.rain_mm_threshold,
+            "wind_kph_threshold": prefs.wind_kph_threshold,
+        }
     )
