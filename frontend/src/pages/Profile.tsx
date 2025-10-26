@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import MainContent from "../components/MainContent";
 import { useLocation } from "../contexts/LocationContext";
+import WeatherPrefsTemplate from "../components/WeatherPrefs";
+import type { WeatherPrefs } from "../types/weather";
 import api from "../lib/api";
 
 type User = {
@@ -39,18 +41,20 @@ const LS_PROFILE = "pg_profile";
 function Profile() {
   const [user, setUser] = useState<User | null>(null);
   const [extras, setExtras] = useState<ProfileExtras>({});
-
+  const [showPrefs, setShowPrefs] = useState(false);
   // soporte avatar
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const API_ORIGIN = useMemo(() => {
-  try {
-    return new URL(import.meta.env.VITE_API_URL || "http://localhost:8000/api").origin;
-  } catch {
-    return "http://localhost:8000";
-  }
-}, []);
+    try {
+      return new URL(
+        import.meta.env.VITE_API_URL || "http://localhost:8000/api"
+      ).origin;
+    } catch {
+      return "http://localhost:8000";
+    }
+  }, []);
 
   const fullAvatar = useMemo(() => {
     if (!user?.avatar_url && !user?.avatar_url) return null;
@@ -285,10 +289,7 @@ function Profile() {
                   </div>
                 </div>
               </div>
-
               <hr />
-
-              {/* Form extras (local + backend) */}
               <div className="row">
                 <div className="col-md-6 mb-3">
                   <label className="form-label">Empresa</label>
@@ -323,8 +324,6 @@ function Profile() {
                   </button>
                 </div>
               </div>
-
-              {/* Badges de cultivos */}
               {!!extras.crops?.length && (
                 <>
                   <hr />
@@ -344,8 +343,6 @@ function Profile() {
             </div>
           </div>
         </div>
-
-        {/* Columna Derecha: Clima de hoy (placeholder) */}
         <div className="col-lg-4 mb-4">
           <div className="card h-100">
             <div className="card-body">
@@ -384,8 +381,18 @@ function Profile() {
                 )}
               </div>
               <div className="d-grid">
-                <button className="btn btn-success">Configurar alertas</button>
+                <button
+                  className="btn btn-success"
+                  onClick={() => setShowPrefs(true)}
+                >
+                  Configurar alertas
+                </button>
               </div>
+              <WeatherPrefsTemplate
+                show={showPrefs}
+                onClose={() => setShowPrefs(false)}
+                onSaved={(prefs: WeatherPrefs) => {}}
+              />
             </div>
           </div>
         </div>

@@ -1,9 +1,9 @@
 ﻿# aqui va SQLAlchemy models (User, RefreshToken)
-
-from sqlalchemy import Column, String, DateTime, Boolean, Integer
+from sqlalchemy import Column, String, DateTime, Boolean, Integer, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import relationship
 import uuid
 from app.db.session import Base
 
@@ -28,3 +28,32 @@ class User(Base):
     location = Column(String(120), nullable=True)
     crops = Column(JSONB, nullable=True)
     avatar_path = Column(String(255), nullable=True)
+    weather_prefs = relationship(
+        "UserWeatherPrefs",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        uselist=False,
+        passive_deletes=True,
+    )
+
+
+class UserWeatherPrefs(Base):
+    __tablename__ = "user_weather_prefs"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+        unique=True,
+    )
+    dangerous_frost_threshold = Column(Integer, nullable=False, default=1)
+    dangerous_temp_threshold = Column(Integer, nullable=False, default=32)
+    rain_mm_threshold = Column(Integer, nullable=False, default=2)
+    wind_kph_threshold = Column(Integer, nullable=False, default=40)
+    user = relationship(
+        "User",
+        back_populates="weather_prefs",
+        passive_deletes=True,
+        uselist=False,
+    )

@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
+from app.utils.utils import resolve_thresholds
 
 # Importando la función del servicio de clima~
 from app.api.services.weather_service import (
@@ -9,6 +10,7 @@ from app.api.services.weather_service import (
 )
 
 router = APIRouter()
+
 
 @router.get("/alerts/weather/now")
 async def read_current_weather(
@@ -47,14 +49,15 @@ async def read_forecast(
 
 @router.get("/alerts/weather/events")
 async def read_alerts(
-    address: str = Query(..., description="Full address or location name")
+    address: str = Query(..., description="Full address or location name"),
+    thresholds: dict = Depends(resolve_thresholds),
 ):
     coords = await get_lat_lon(address)
     if "error" in coords:
         raise HTTPException(status_code=400, detail=coords["error"])
 
     lat, lon = coords["lat"], coords["lon"]
-    alerts = await get_alerts(lat, lon)
+    alerts = await get_alerts(lat, lon, thresholds)
 
     if "error" in alerts:
         return []

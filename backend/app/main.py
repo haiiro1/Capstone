@@ -1,7 +1,8 @@
-﻿from fastapi import FastAPI, Depends
+﻿from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.exceptions import RequestValidationError
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -68,10 +69,37 @@ app.include_router(auth_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
 app.include_router(weather_router, prefix="/api", tags=["Weather"])
 
-
 # --- Archivos estáticos (Revisar que exista la carpeta) ---
 # settings.MEDIA_URL_PREFIX debe empezar con "/" (ej. "/media")
 # settings.MEDIA_DIR debe existir en runtime
 app.mount(
     settings.MEDIA_URL_PREFIX, StaticFiles(directory=settings.MEDIA_DIR), name="media"
 )
+
+# traduccion de los errores tirados como json response (parcial)
+ERROR_MSG_ES = {
+    "less_than_equal": lambda ctx: f"Debe ser menor o igual a {ctx.get('le')}",
+    "greater_than_equal": lambda ctx: f"Debe ser mayor o igual a {ctx.get('ge')}",
+    "less_than": lambda ctx: f"Debe ser menor que {ctx.get('lt')}",
+    "greater_than": lambda ctx: f"Debe ser mayor que {ctx.get('gt')}",
+    "int_parsing": lambda ctx: "Debe ser un número entero",
+    "float_parsing": lambda ctx: "Debe ser un número",
+    "missing": lambda ctx: "Campo obligatorio",
+}
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    translated_errors = []
+    for e in exc.errors():
+        typ = e.get("type")
+        ctx = e.get("ctx") or {}
+        translator = ERROR_MSG_ES.get(typ)
+        if translator:
+            e_copy = dict(e)
+            e_copy["msg"] = translator(ctx)
+            translated_errors.append(e_copy)
+        else:
+            translated_errors.append(e)
+
+    return JSONResponse(status_code=422, content={"detail": translated_errors})
