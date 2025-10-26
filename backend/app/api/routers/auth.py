@@ -61,26 +61,6 @@ def get_current_user(
     return user
 
 
-# Endpoints
-
-
-# @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
-# def register(payload: UserCreate, db: Session = Depends(get_db)):
-#     if db.query(User).filter(User.email == payload.email).first():
-#         raise HTTPException(status_code=409, detail="El email ya está registrado.")
-
-#     user = User(
-#         email=payload.email,
-#         first_name=payload.first_name,
-#         last_name=payload.last_name,
-#         password_hash=get_password_hash(payload.password),
-#     )
-#     db.add(user)
-#     db.commit()
-#     db.refresh(user)
-#     return user
-
-
 @router.post("/register")
 async def register(payload: RegisterInit, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == payload.email).first():
@@ -97,22 +77,37 @@ async def register(payload: RegisterInit, db: Session = Depends(get_db)):
     token = make_email_token(token_payload)
     verify_link = f"{FRONTEND_BASE_URL}/verify?token={token}"
     html = f"""
-      <div style="font-family:system-ui">
-        <h2>Hello, and Welcome to PlantGuard!</h2>
-        <p>Click the button below to verify your account, and to begin using our site.</p>
-        <p><a href="{verify_link}" style="display:inline-block;padding:10px 16px;border-radius:8px;text-decoration:none;background:#16a34a;color:white">Verify Account</a></p>
-        <p>If the button doesn't work, you can copy and paste this link into your browser:<br/>{verify_link}</p>
-      </div>
+        <div style="font-family:system-ui; margin:0px auto;max-width:600px;">
+            <h1 style="text-align:center">
+                <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" target="_blank" style="text-decoration:none; color: #15c;">🌱 PlantGuard</a>
+            </h1>
+            <h2>Hola, {payload.first_name}!</h2>
+            <p>Bienvenid@ a PlantGuard! Hace click a el siguiente link para validar tu cuenta.</p>
+            <a href="{verify_link}" target="_blank" style="text-decoration:none; margin-left:2em; color: #15c;">
+                <span class="il"><span class="il">Valida</span></span> tu cuenta!</a>
+            <p style="color: #9192a7; font-size: 12px; font-style: italic;">
+            Has recibido este correo porque alguien esta tratando de registrarse en PlantGuard con tu dirección.
+            </p>
+            <div style="text-align:center">
+                <hr>
+                <p style="font-size:12px; color: #15c;">
+                    <a href="http://danbooru.donmai.us/" style="text-decoration:none;" target="_blank">🌱</a>
+                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" target="_blank">PlantGuard</a> /
+                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/privacidad" target="_blank">Privacidad</a> /
+                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/ayuda" target="_blank">Contacto</a>
+                </p>
+            </div>
+        </div>
     """
     fm = FastMail(conf)
     message = MessageSchema(
-        subject="Verify your PlantGuard Account",
+        subject="Valida tu cuenta PlantGuard",
         recipients=[payload.email],
         body=html,
         subtype=MessageType.html,
     )
     await fm.send_message(message)
-    return {"message": "You'll receive a verification email shortly."}
+    return {"message": "Recibiras un correo de validación en breve."}
 
 
 @router.get("/verify")
@@ -126,7 +121,7 @@ def verify_account(token: str, db: Session = Depends(get_db)):
 
     email = data["email"].lower().strip()
     if db.query(User).filter(User.email == email).first():
-        return {"message": "Account already verified. You can log in."}
+        return {"message": "Cuenta ya validada, ahora puedes iniciar sesión."}
 
     user = User(
         email=email,
@@ -138,7 +133,7 @@ def verify_account(token: str, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
-    return {"message": "Account verified. You can now log in."}
+    return {"message": "Cuenta validada, ahora puedes iniciar sesión."}
 
 
 @router.post("/verify/resend")
@@ -158,15 +153,30 @@ async def resend_verify(email: EmailStr, db: Session = Depends(get_db)):
     )
     verify_link = f"{FRONTEND_BASE_URL}/verify?token={token}"
     html = f"""
-      <div style="font-family:system-ui">
-        <h2>Hello, and Welcome to PlantGuard!</h2>
-        <p>Click the button below to verify your account, and to begin using our site.</p>
-        <p><a href="{verify_link}" style="display:inline-block;padding:10px 16px;border-radius:8px;text-decoration:none;background:#16a34a;color:white">Verify Account</a></p>
-        <p>If the button doesn't work, you can copy and paste this link into your browser:<br/>{verify_link}</p>
-      </div>
+        <div style="font-family:system-ui; margin:0px auto;max-width:600px;">
+            <h1 style="text-align:center">
+                <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" target="_blank" style="text-decoration:none; color: #15c;">🌱 PlantGuard</a>
+            </h1>
+            <h2>Hola!</h2>
+            <p>Bienvenid@ a PlantGuard! Hace click a el siguiente link para validar tu cuenta.</p>
+            <a href="{verify_link}" target="_blank" style="text-decoration:none; margin-left:2em; color: #15c;">
+                <span class="il"><span class="il">Valida</span></span> tu cuenta!</a>
+            <p style="color: #9192a7; font-size: 12px; font-style: italic;">
+            Has recibido este correo porque alguien esta tratando de registrarse en PlantGuard con tu dirección.
+            </p>
+            <div style="text-align:center">
+                <hr>
+                <p style="font-size:12px; color: #15c;">
+                    <a href="http://danbooru.donmai.us/" style="text-decoration:none;" target="_blank">🌱</a>
+                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" target="_blank">PlantGuard</a> /
+                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/privacidad" target="_blank">Privacidad</a> /
+                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/ayuda" target="_blank">Contacto</a>
+                </p>
+            </div>
+        </div>
     """
     message = MessageSchema(
-        subject="Verify your PlantGuard Account",
+        subject="Valida tu cuenta PlantGuard",
         recipients=[str(email)],
         body=html,
         subtype=MessageType.html,
@@ -216,7 +226,9 @@ def me(current_user: User = Depends(get_current_user)):
 
 
 @router.post("/password/reset/init", status_code=200)
-async def password_reset_init(payload: PasswordResetInit, db: Session = Depends(get_db)):
+async def password_reset_init(
+    payload: PasswordResetInit, db: Session = Depends(get_db)
+):
     generic = {
         "message": "Si corresponde, recibirás un correo para restablecer tu contraseña."
     }
@@ -237,15 +249,33 @@ async def password_reset_init(payload: PasswordResetInit, db: Session = Depends(
     )
     reset_link = f"{FRONTEND_BASE_URL}/reset-password?token={token}"
     html = f"""
-      <div style="font-family:system-ui">
-        <h2>Reset your Password!</h2>
-        <p>Click the button below to be redirected and to update your password.</p>
-        <p><a href="{reset_link}" style="display:inline-block;padding:10px 16px;border-radius:8px;text-decoration:none;background:#16a34a;color:white">Reset</a></p>
-        <p>if you didn’t request this, you can safely ignore this email. Someone else might have typed your email address by mistake.</p>
-      </div>
+        <div style="font-family:system-ui; margin:0px auto;max-width:600px;">
+            <h1 style="text-align:center">
+                <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" target="_blank" style="text-decoration:none; color: #15c;">🌱 PlantGuard</a>
+            </h1>
+            <h2>Hola, {user.first_name}!</h2>
+            <p>Has solicitado que se restablezca tu contraseña. Haz clic en el siguiente link para crear una nueva:</p>
+            <a href="{reset_link}" target="_blank" style="text-decoration:none; margin-left:2em; color: #15c;">
+                <span class="il"><span class="il">Restaura</span></span> tu contraseña</a>
+            <div style="color: #9192a7; font-size: 12px; font-style: italic;">
+                <p>
+                Has recibido este correo porque alguien esta tratando de restaurar tu contraseña en PlantGuard.<br>
+                Si no ha solicitado esto, puede ignorar este correo electrónico.
+                </p>
+            </div>
+            <div style="text-align:center">
+                <hr>
+                <p style="font-size:12px; color: #15c;">
+                    <a href="http://danbooru.donmai.us/" style="text-decoration:none;" target="_blank">🌱</a>
+                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" target="_blank">PlantGuard</a> /
+                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/privacidad" target="_blank">Privacidad</a> /
+                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/ayuda" target="_blank">Contacto</a>
+                </p>
+            </div>
+        </div>
     """
     message = MessageSchema(
-        subject="PlantGuard — Reset your password",
+        subject="PlantGuard — Restablece tu contraseña",
         recipients=[user.email],
         body=html,
         subtype=MessageType.html,
@@ -255,7 +285,9 @@ async def password_reset_init(payload: PasswordResetInit, db: Session = Depends(
 
 
 @router.post("/password/reset/confirm", status_code=200)
-def password_reset_confirm(payload: PasswordResetConfirm, db: Session = Depends(get_db)):
+def password_reset_confirm(
+    payload: PasswordResetConfirm, db: Session = Depends(get_db)
+):
     try:
         data = load_email_token(payload.token)
     except SignatureExpired:
