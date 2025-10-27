@@ -54,10 +54,10 @@ function App() {
 
         {/* Rutas SimpleLayout */}
         <Route element={<SimpleLayout />}>
-          <Route path="/terminos" element={<Terms />} />
+          <Route path="/Terms" element={<Terms />} />
           <Route path="/privacidad" element={<Privacy />} />
           <Route path="/faq" element={<Faq />} />
-          <Route path="/ayuda" element={<Help />} />
+          <Route path="/Help" element={<Help />} />
         </Route>
 
         {/* Rutas MainLayout */}

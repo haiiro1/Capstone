@@ -1,14 +1,12 @@
-import { Link } from "react-router-dom";
+
 function Footer() {
   return (
-    <footer className="mt-auto py-3 bg-light text-center">
-      <div className="container d-flex justify-content-between align-items-center">
-        <span className="text-muted">© 2025 PlantGuard — Capstone</span>
-        <ul className="nav list-inline mb-0">
-          <li className="list-inline-item"><Link to="/ayuda" className="text-muted">Ayuda</Link></li>
-          <li className="list-inline-item"><Link to="/faq" className="text-muted">FAQ</Link></li>
-          <li className="list-inline-item"><Link to="/terminos" className="text-muted">Términos</Link></li>
-        </ul>
+    <footer className="border-top bg-body">
+      <div className="container py-3 text-center text-body-secondary">
+        © 2025 PlantGuard — Capstone
+        <span className="ms-3"><a className="link-secondary" href="/help">Ayuda</a></span>
+        <span className="ms-2"><a className="link-secondary" href="/faq">FAQ</a></span>
+        <span className="ms-2"><a className="link-secondary" href="/terms">Términos</a></span>
       </div>
     </footer>
   );
