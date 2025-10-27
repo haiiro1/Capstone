@@ -101,7 +101,7 @@ function Home() {
           <div className="card h-100">
             <div className="card-body d-flex flex-column">
               <h5 className="card-title">Subir imagen rápida</h5>
-              <div className="text-center p-4 border-2 border-dashed rounded bg-light mt-3 flex-grow-1 d-flex align-items-center justify-content-center">
+              <div className="text-center p-4 border-2 border-dashed rounded bg-Body mt-3 flex-grow-1 d-flex align-items-center justify-content-center">
                 <div>
                   <p className="text-muted mb-0">📤 Arrastra una imagen aquí</p>
                   <p className="small text-muted mb-0">o haz clic para seleccionar</p>

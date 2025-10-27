@@ -99,7 +99,7 @@ function Analytics() {
                 onChange={(e) => onFilesChosen(e.target.files)}
               />
               <div
-                className="text-center p-5 border-2 border-dashed rounded bg-light mt-3"
+                className="text-center p-5 border-2 border-dashed rounded bg-body mt-3"
                 style={{ cursor: "pointer" }}
                 onClick={onPickClick}
                 onDrop={onDrop}
@@ -140,7 +140,7 @@ function Analytics() {
                 </button>
                 {!loading ? (
                   <button
-                    className="btn btn-dark"
+                    className="btn btn-body"
                     onClick={onAnalyze}
                     disabled={!file}
                   >
