@@ -9,7 +9,7 @@ function Faq() {
         Encuentra aquí las respuestas a las consultas más comunes sobre el
         funcionamiento de PlantGuard.
       </p>
-      <hr className="border-top bg-body" />
+      <hr className="mb-4" />
       {/* --- Inicio del Acordeón de Bootstrap --- */}
       {/* Usamos un ID único para este acordeón para evitar conflictos */}
       <div className="accordion" id="faqPageAccordion">
@@ -86,7 +86,7 @@ function Faq() {
         <p className="text-muted">
           Visita nuestro Centro de Ayuda o contáctanos directamente.
         </p>
-        <Link to="/ayuda" className="btn btn-outline-primary mt-2">
+        <Link to="/Help" className="btn btn-outline-primary mt-2">
           Volver al Centro de Ayuda
         </Link>
       </div>

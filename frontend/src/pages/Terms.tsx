@@ -1,7 +1,7 @@
 function Terms() {
   return (
     <>
-      <h2 className="fw-bold mb-4">Términos y Condiciones</h2>
+      <h2 className="fw-body mb-4">Términos y Condiciones</h2>
       <p className="text-muted">
         Última actualización: 21 de septiembre de 2025
       </p>
