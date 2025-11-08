@@ -157,7 +157,7 @@ function Register() {
           />
           <label className="form-check-label" htmlFor="terms">
             Acepto los{" "}
-            <Link to="/terminos" target="_blank" rel="noopener noreferrer">
+            <Link to="/Terms" target="_blank" rel="noopener noreferrer">
               Términos
             </Link>{" "}
             y la{" "}

@@ -5,12 +5,12 @@ import WeatherPrefsTemplate from "../components/WeatherPrefs";
 import type { WeatherPrefs } from "../types/weather";
 import api from "../lib/api";
 
+// ---- Tipos ----
 type User = {
   id: string;
   email: string;
   first_name: string;
   last_name: string;
-  // campos opcionales que puede devolver el backend
   company?: string | null;
   location?: string | null;
   crops?: string[] | null;
@@ -48,24 +48,16 @@ function Profile() {
 
   const API_ORIGIN = useMemo(() => {
     try {
-      return new URL(
-        import.meta.env.VITE_API_URL || "http://localhost:8000/api"
-      ).origin;
+      return new URL(import.meta.env.VITE_API_URL || "http://localhost:8000/api").origin;
     } catch {
       return "http://localhost:8000";
     }
   }, []);
 
   const fullAvatar = useMemo(() => {
-    if (!user?.avatar_url && !user?.avatar_url) return null;
-
-    // prioriza avatar_url (absoluta o relativa)
-    const url = user.avatar_url || user.avatar_url;
-
-    // si ya es absoluta (https://...), úsala tal cual
+    if (!user?.avatar_url) return null;
+    const url = user.avatar_url;
     if (url.startsWith("http")) return url;
-
-    // si es relativa (/media/...), prepéndele la API
     return `${API_ORIGIN}${url}`;
   }, [user, API_ORIGIN]);
 
@@ -92,7 +84,6 @@ function Profile() {
       .then((r) => {
         setUser(r.data);
         localStorage.setItem(LS_USER, JSON.stringify(r.data));
-        // actualiza extras desde backend si existen y no hay LS_PROFILE
         const ex = localStorage.getItem(LS_PROFILE);
         if (!ex) {
           setExtras({
@@ -104,7 +95,6 @@ function Profile() {
       })
       .catch(() => {});
 
-    // si hay perfil en LS
     const ex = localStorage.getItem(LS_PROFILE);
     if (ex) {
       try {
@@ -128,11 +118,13 @@ function Profile() {
     setLocation(extras.location || "");
     setCropsText((extras.crops || []).join(", "));
   }, [extras]);
-  // weather api funny stuff
+
+  // weather api
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { address } = useLocation();
+
   useEffect(() => {
     if (!address) {
       setWeather(null);
@@ -149,9 +141,7 @@ function Profile() {
         setError(null);
 
         const encoded = encodeURIComponent(address);
-        const nowRes = await api.get<WeatherResponse>(
-          `/api/alerts/weather/now?address=${encoded}`
-        );
+        const nowRes = await api.get<WeatherResponse>(`/api/alerts/weather/now?address=${encoded}`);
 
         if (!cancelled) setWeather(nowRes.data.weather);
       } catch (err) {
@@ -164,7 +154,6 @@ function Profile() {
     };
 
     fetchWeather();
-
     return () => {
       cancelled = true;
     };
@@ -227,53 +216,45 @@ function Profile() {
 
               {/* Avatar + Datos */}
               <div className="d-flex align-items-center mb-4">
-                <div
-                  className="rounded-circle bg-light d-flex align-items-center justify-content-center me-4 position-relative"
-                  style={{ width: 80, height: 80, overflow: "hidden" }}
-                >
-                  {/* muestra imagen si existe o preview; si no, iniciales */}
-                  {avatarPreview ? (
-                    <img
-                      key="preview"
-                      src={avatarPreview}
-                      alt="preview"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
-                  ) : fullAvatar ? (
-                    <img
-                      key={fullAvatar || "noavatar"}
-                      src={fullAvatar || ""}
-                      alt="avatar"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
-                  ) : (
-                    <span className="fs-3 fw-bold text-secondary">
-                      {initials}
-                    </span>
-                  )}
-
-                  {/* input de archivo discreto */}
+                <div className="position-relative me-4">
                   <label
-                    className="btn btn-sm btn-outline-secondary position-absolute bottom-0 start-50 translate-middle-x"
-                    style={{ lineHeight: 1 }}
+                    htmlFor="avatarInput"
+                    className="d-inline-flex align-items-center justify-content-center rounded-circle bg-body border shadow-sm"
+                    style={{ width: 80, height: 80, overflow: "hidden", cursor: "pointer" }}
+                    role="button"
+                    tabIndex={0}
                   >
-                    {uploading ? "Subiendo..." : "Cambiar"}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      hidden
-                      disabled={uploading}
-                      onChange={(e) => handleAvatarChange(e.target.files?.[0])}
-                    />
+                    {avatarPreview ? (
+                      <img
+                        key="preview"
+                        src={avatarPreview}
+                        alt="preview"
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    ) : fullAvatar ? (
+                      <img
+                        key={fullAvatar || "noavatar"}
+                        src={fullAvatar || ""}
+                        alt="avatar"
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    ) : (
+
+
+                      <span className="fs-3 fw-bold text-secondary">{initials}
+                        {initials || "PG"}
+                      </span>
+                    )}
                   </label>
+
+                  <input
+                    id="avatarInput"
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    disabled={uploading}
+                    onChange={(e) => handleAvatarChange(e.target.files?.[0])}
+                  />
                 </div>
 
                 <div>
@@ -289,6 +270,7 @@ function Profile() {
                   </div>
                 </div>
               </div>
+
               <hr />
               <div className="row">
                 <div className="col-md-6 mb-3">
@@ -308,9 +290,7 @@ function Profile() {
                   />
                 </div>
                 <div className="col-12 mb-3">
-                  <label className="form-label">
-                    Cultivos principales (máx 5, separados por coma)
-                  </label>
+                  <label className="form-label">Cultivos principales (máx 5, separados por coma)</label>
                   <input
                     className="form-control"
                     placeholder="Tomate, Lechuga, Papa"
@@ -324,16 +304,14 @@ function Profile() {
                   </button>
                 </div>
               </div>
+
               {!!extras.crops?.length && (
                 <>
                   <hr />
                   <h6 className="text-muted small">🌱 CULTIVOS PRINCIPALES</h6>
                   <div className="mt-3">
                     {extras.crops.map((c) => (
-                      <span
-                        key={c}
-                        className="badge bg-secondary me-2 mb-2 p-2"
-                      >
+                      <span key={c} className="badge bg-secondary me-2 mb-2 p-2">
                         {c}
                       </span>
                     ))}
@@ -343,48 +321,35 @@ function Profile() {
             </div>
           </div>
         </div>
+
+        {/* Columna Derecha: Clima */}
         <div className="col-lg-4 mb-4">
           <div className="card h-100">
             <div className="card-body">
               <h5 className="card-title">Clima de hoy</h5>
               <div className="text-center my-4">
                 {loading && <p className="text-muted">Cargando clima...</p>}
-                {error && (
-                  <div className="alert alert-warning py-2">{error}</div>
-                )}
+                {error && <div className="alert alert-warning py-2">{error}</div>}
                 {weather && (
                   <div className="d-flex align-items-center">
                     <img
                       src={`https://openweathermap.org/img/wn/${weather.icon}@4x.png`}
                       alt={weather.condition}
-                      style={{
-                        width: "100px",
-                        height: "100px",
-                        imageRendering: "pixelated",
-                      }}
+                      style={{ width: "100px", height: "100px", imageRendering: "pixelated" }}
                     />
                     <div className="ms-3">
-                      <h2 className="display-4 fw-bold">
-                        {Math.round(weather.temp)}°C
-                      </h2>
-                      <p className="lead text-capitalize mb-0">
-                        {weather.condition}
-                      </p>
+                      <h2 className="display-4 fw-bold">{Math.round(weather.temp)}°C</h2>
+                      <p className="lead text-capitalize mb-0">{weather.condition}</p>
                     </div>
                     <div className="ms-auto text-end">
                       <p className="mb-1">Humedad: {weather.humidity}%</p>
-                      <p className="mb-0">
-                        Viento: {Math.round(weather.wind_speed)} km/h
-                      </p>
+                      <p className="mb-0">Viento: {Math.round(weather.wind_speed)} km/h</p>
                     </div>
                   </div>
                 )}
               </div>
               <div className="d-grid">
-                <button
-                  className="btn btn-success"
-                  onClick={() => setShowPrefs(true)}
-                >
+                <button className="btn btn-success" onClick={() => setShowPrefs(true)}>
                   Configurar alertas
                 </button>
               </div>
