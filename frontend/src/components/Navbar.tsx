@@ -37,6 +37,8 @@ function Navbar() {
             <li className="nav-item"><Link className={getLinkClass("/historial")} to="/historial">{getButtonSpan("/historial", "Historial")}</Link></li>
             <li className="nav-item"><Link className={getLinkClass("/alertas")} to="/alertas">{getButtonSpan("/alertas", "Alertas")}</Link></li>
             <li className="nav-item"><Link className={getLinkClass("/perfil")} to="/perfil">{getButtonSpan("/perfil", "Perfil")}</Link></li>
+            <li className="nav-item"><Link className={getLinkClass("/Help")} to="/Help">{getButtonSpan("/Help", "Help")}</Link></li>
+            <li className="nav-item"><Link className={getLinkClass("/membresia")} to="/membresia">{getButtonSpan("/Membresia", "Membresia")}</Link></li>
             <li className="nav-item ms-3"><ThemeToggleSwitch /></li>
             <li className="nav-item ms-3"><button onClick={handleLogout} className="btn btn-outline-danger btn-sm">Cerrar sesión</button></li>
           </ul>

@@ -25,6 +25,7 @@ import Verify from "./pages/Auth/Verify";
 import ReVerify from "./pages/Auth/ReVerify";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
+import Membresia from "./pages/Membresia";
 
 function App() {
   const [mapsReady, setMapsReady] = useState(false);
@@ -67,6 +68,7 @@ function App() {
           <Route path="/historial" element={<Historial />} />
           <Route path="/alertas" element={<Alertas />} />
           <Route path="/perfil" element={<Perfil />} />
+          <Route path="/membresia" element={<Membresia />}/>
         </Route>
       </Routes>
     </LocationProvider>
