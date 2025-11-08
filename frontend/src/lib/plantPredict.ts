@@ -1,15 +1,22 @@
 import api from "../lib/api";
 
-export interface PredictionItem {
-  label: string;
-  score: number;
-}
+export type PredictionItem = {
+  title: string;
+  severity?: string | null;
+  advice: string[];
+  probability: number;
+};
 
-export interface PredictResponse {
+export type PredictResponse = {
+  model_version?: string;
   top_k: number;
+  lang?: string;
+  date_created: string;
   predictions: PredictionItem[];
-}
+  disclaimer?: string;
+};
 
+// so much more simplified after dealing w the parse directly in back ;w;
 export async function predictDisease(
   file: File,
   signal?: AbortSignal
@@ -17,25 +24,10 @@ export async function predictDisease(
   const form = new FormData();
   form.append("file", file, file.name);
 
-  const res = await api.post("/api/plant/predict", form, {
+  const { data } = await api.post<PredictResponse>("/api/plant/predict", form, {
     headers: { "Content-Type": "multipart/form-data" },
     signal,
   });
 
-  const raw = res.data;
-  const top_k = Number(raw?.top_k ?? 0);
-
-  const predictions = (raw?.predictions ?? [])
-    .map((p: any) => ({
-      label: p.labels_es || p.label_en || "—",
-      score:
-        typeof p.probabilty === "number"
-          ? p.probabilty
-          : typeof p.probability === "number"
-          ? p.probability
-          : 0,
-    }))
-    .filter((p) => p.score >= 0.01);
-
-  return { top_k, predictions };
+  return data;
 }

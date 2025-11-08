@@ -1,5 +1,15 @@
 ﻿# aqui va SQLAlchemy models (User, RefreshToken)
-from sqlalchemy import Column, String, DateTime, Boolean, Integer, ForeignKey
+import sqlalchemy as sa
+from sqlalchemy import (
+    DOUBLE_PRECISION,
+    Column,
+    Index,
+    String,
+    DateTime,
+    Boolean,
+    Integer,
+    ForeignKey,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import JSONB
@@ -59,3 +69,28 @@ class UserWeatherPrefs(Base):
         passive_deletes=True,
         uselist=False,
     )
+
+
+class PredictionRecord(Base):
+    __tablename__ = "prediction_record"
+    __table_args__ = (
+        Index("ix_pr_user_created_desc", "user_id", "date_created"),
+    )
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    # note this, they arent used currently, since we only display top-1, but they could be used,
+    # with another table that would store these records, this isn't needed for now, but its future proofing.
+    rank = Column(Integer, nullable=False, default=1)
+    session_id = Column(UUID(as_uuid=True), nullable=True, index=True)
+    date_created = Column(DateTime(timezone=True), server_default=sa.func.now(), nullable=False)
+    title = Column(String, nullable=False)
+    severity = Column(String, nullable=True)
+    advice = Column(JSONB, nullable=False, default=list)
+    probability = Column(DOUBLE_PRECISION, nullable=False)
+    model_version = Column(String, nullable=True)
+    user = relationship("User", backref="prediction_records")

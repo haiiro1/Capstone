@@ -7,11 +7,11 @@ function SimpleLayout() {
     navigate(-1);
   };
   return (
-    <div className="bg-light min-vh-100 d-flex flex-column">
+    <div className="bg-body min-vh-100 d-flex flex-column">
       {/* Encabezado simple para lectura sencilla */}
-      <header className="py-3 bg-white border-bottom shadow-sm">
+      <header className="py-3 bg-body border-bottom shadow-sm">
         <div className="container">
-           <button onClick={handleGoBack} className="btn btn-link text-decoration-none text-dark fw-bold p-0">
+           <button onClick={handleGoBack} className="btn btn-link text-decoration-none text-body fw-bold p-0">
             🌱 PlantGuard
           </button>
         </div>
@@ -20,8 +20,8 @@ function SimpleLayout() {
       {/* Contenido de la página de Términos) */}
       <main className="flex-grow-1 py-5">
         <div className="container">
-            <div className="col-md-8 mx-auto bg-white p-4 p-md-5 rounded shadow-sm">
-                 <Outlet /> 
+            <div className="col-md-8 mx-auto bg-body p-4 p-md-5 rounded shadow-sm">
+                 <Outlet />
                 <div className="text-center">
                     <button onClick={handleGoBack} className="btn btn-outline-secondary">
                       ← Volver
