@@ -1,12 +1,9 @@
 # aqui va los endpoints de perfil si los necesitas
-<<<<<<< HEAD
-=======
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from app.schemas.user import UserOut, UserProfileUpdate, ThemeUpdate
 from app.api.routers.auth import get_current_user, get_db
 from app.db.models import User
->>>>>>> parent of 7456288 (Revert "Dark mode Update")
 import os, time, secrets
 import time
 
