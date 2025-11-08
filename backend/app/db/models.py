@@ -4,6 +4,7 @@ from sqlalchemy import (
     DOUBLE_PRECISION,
     Column,
     Index,
+    Numeric,
     String,
     DateTime,
     Boolean,
@@ -47,6 +48,15 @@ class User(Base):
         uselist=False,
         passive_deletes=True,
     )
+    subscriptions = relationship(
+        "Subscription",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+    purchase_orders = relationship(
+        "PurchaseOrder", back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class UserWeatherPrefs(Base):
@@ -73,9 +83,7 @@ class UserWeatherPrefs(Base):
 
 class PredictionRecord(Base):
     __tablename__ = "prediction_record"
-    __table_args__ = (
-        Index("ix_pr_user_created_desc", "user_id", "date_created"),
-    )
+    __table_args__ = (Index("ix_pr_user_created_desc", "user_id", "date_created"),)
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(
         UUID(as_uuid=True),
@@ -87,10 +95,58 @@ class PredictionRecord(Base):
     # with another table that would store these records, this isn't needed for now, but its future proofing.
     rank = Column(Integer, nullable=False, default=1)
     session_id = Column(UUID(as_uuid=True), nullable=True, index=True)
-    date_created = Column(DateTime(timezone=True), server_default=sa.func.now(), nullable=False)
+    date_created = Column(
+        DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+    )
     title = Column(String, nullable=False)
     severity = Column(String, nullable=True)
     advice = Column(JSONB, nullable=False, default=list)
     probability = Column(DOUBLE_PRECISION, nullable=False)
     model_version = Column(String, nullable=True)
     user = relationship("User", backref="prediction_records")
+
+
+class Subscription(Base):
+    __tablename__ = "subscription"
+    __table_args__ = (sa.Index("ix_subscription_user_active", "user_id", "is_active"),)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    is_active = Column(Boolean, nullable=False, default=True)
+    date_created = Column(
+        DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+    )
+    updated_at = Column(DateTime(timezone=True), onupdate=sa.func.now())
+    expiry_date = Column(DateTime(timezone=True), nullable=False)
+    user = relationship(
+        "User",
+        back_populates="subscription_status",
+        passive_deletes=True,
+        uselist=False,
+    )
+
+
+class PurchaseOrder(Base):
+    __tablename__ = "purchase_order"
+    __table_args__ = (sa.Index("ix_purchase_order_user_status", "user_id", "status"),)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    amount = Column(Numeric(10, 2), nullable=False)
+    payment_url = Column(String(255), nullable=False)
+    token = Column(String(128), unique=True, nullable=False, index=True)
+    token_ts = Column(DateTime(timezone=True), nullable=False)
+    status = Column(String(20), default="pending", nullable=False)
+    created_at = Column(
+        DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+    )
+    updated_at = Column(DateTime(timezone=True), onupdate=sa.func.now())
+    user = relationship("User", back_populates="purchase_orders")
