@@ -1,5 +1,7 @@
 ﻿# aqui va SQLAlchemy models (User, RefreshToken)
+import uuid
 import sqlalchemy as sa
+from datetime import timedelta, timezone, datetime
 from sqlalchemy import (
     DOUBLE_PRECISION,
     Column,
@@ -15,9 +17,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
-import uuid
-from app.db.session import Base
 
+from app.db.session import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -149,4 +150,44 @@ class PurchaseOrder(Base):
         DateTime(timezone=True), server_default=sa.func.now(), nullable=False
     )
     updated_at = Column(DateTime(timezone=True), onupdate=sa.func.now())
+    tbk_metadata = Column(JSONB, nullable=True)
     user = relationship("User", back_populates="purchase_orders")
+
+    def is_token_expired(self, ttl_minutes: int = 30) -> bool:
+        if not self.token_ts:
+            return True
+        expiry_time = self.token_ts + timedelta(minutes=ttl_minutes)
+        return datetime.now(timezone.utc) > expiry_time
+
+    def can_update_payment(self, days_valid: int = 7) -> bool:
+        if not self.token_ts:
+            return False
+        return datetime.now(timezone.utc) <= self.token_ts + timedelta(days=days_valid)
+
+    def mark_expired_if_needed(self):
+        if self.status == "pending" and self.is_token_expired():
+            self.status = "expired"
+
+    def update_status(self, token: str, as_get: bool = False):
+        from backend.app.api.services.tbk import get_status, update_status
+
+        if self.paid:
+            return self.tbk_metadata
+
+        result = get_status(token) if as_get else update_status(token)
+        if not result:
+            return None
+
+        if token:
+            self.token = token
+
+        if result.get('response_code') == 0 and result.get('status') == 'AUTHORIZED':
+            self.tbk_metadata = result
+            self.paid = True
+            self.save()
+
+        else:
+            self.tbk_metadata = result
+            self.save()
+
+        return result
