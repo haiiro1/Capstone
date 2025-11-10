@@ -49,7 +49,7 @@ class User(Base):
         uselist=False,
         passive_deletes=True,
     )
-    subscriptions = relationship(
+    subscription_status = relationship(
         "Subscription",
         back_populates="user",
         cascade="all, delete-orphan",
@@ -134,7 +134,7 @@ class Subscription(Base):
 class PurchaseOrder(Base):
     __tablename__ = "purchase_order"
     __table_args__ = (sa.Index("ix_purchase_order_user_status", "user_id", "status"),)
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Integer, primary_key=True, index=True)
     user_id = Column(
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
@@ -142,9 +142,9 @@ class PurchaseOrder(Base):
         index=True,
     )
     amount = Column(Numeric(10, 2), nullable=False)
-    payment_url = Column(String(255), nullable=False)
-    token = Column(String(128), unique=True, nullable=False, index=True)
-    token_ts = Column(DateTime(timezone=True), nullable=False)
+    payment_url = Column(String(255), nullable=True)
+    token = Column(String(128), unique=True, nullable=True, index=True)
+    token_ts = Column(DateTime(timezone=True), nullable=True)
     status = Column(String(20), default="pending", nullable=False)
     created_at = Column(
         DateTime(timezone=True), server_default=sa.func.now(), nullable=False
@@ -169,7 +169,7 @@ class PurchaseOrder(Base):
             self.status = "expired"
 
     def update_status(self, token: str, as_get: bool = False):
-        from backend.app.api.services.tbk import get_status, update_status
+        from app.api.services.tbk import get_status, update_status
 
         if self.paid:
             return self.tbk_metadata

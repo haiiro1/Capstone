@@ -13,6 +13,7 @@ from app.api.routers.auth import router as auth_router
 from app.api.routers.users import router as users_router
 from app.api.routers.weather import router as weather_router
 from app.api.routers.plant import router as plant_router
+from app.api.routers.payment import router as payment_router
 from app.db.session import SessionLocal
 
 
@@ -68,7 +69,7 @@ app.include_router(plant_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
 app.include_router(weather_router, prefix="/api", tags=["Weather"])
-
+app.include_router(payment_router, prefix="/api", tags=["payment"])
 # --- Archivos estáticos (Revisar que exista la carpeta) ---
 # settings.MEDIA_URL_PREFIX debe empezar con "/" (ej. "/media")
 # settings.MEDIA_DIR debe existir en runtime
