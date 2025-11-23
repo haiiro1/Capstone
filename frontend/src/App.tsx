@@ -5,6 +5,8 @@ import AuthLayout from "./Layouts/AuthLayout";
 import SimpleLayout from "./Layouts/SimpleLayout";
 import { LocationProvider } from "./contexts/LocationContext";
 import { loadGoogleMaps } from "./utils/GoogleMaps";
+import ConfirmarMembresia from "./pages/ConfirmarMembresia";
+import MembresiaEstado from "./pages/MembresiaEstado";
 
 // Relativo a la página
 import Analizar from "./pages/Analytics";
@@ -25,6 +27,7 @@ import Verify from "./pages/Auth/Verify";
 import ReVerify from "./pages/Auth/ReVerify";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
+import Membresia from "./pages/Membresia";
 
 function App() {
   const [mapsReady, setMapsReady] = useState(false);
@@ -67,6 +70,10 @@ function App() {
           <Route path="/historial" element={<Historial />} />
           <Route path="/alertas" element={<Alertas />} />
           <Route path="/perfil" element={<Perfil />} />
+          {/* Membresía */}
+          <Route path="/membresia" element={<Membresia />} />
+          <Route path="/membresia/confirmar" element={<ConfirmarMembresia />} />
+          <Route path="/membresia/estado" element={<MembresiaEstado />} />
         </Route>
       </Routes>
     </LocationProvider>
