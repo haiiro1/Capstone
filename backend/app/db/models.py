@@ -171,7 +171,7 @@ class PurchaseOrder(Base):
     def update_status(self, token: str, as_get: bool = False):
         from app.api.services.tbk import get_status, update_status
 
-        if self.paid:
+        if self.status:
             return self.tbk_metadata
 
         result = get_status(token) if as_get else update_status(token)
@@ -183,11 +183,9 @@ class PurchaseOrder(Base):
 
         if result.get('response_code') == 0 and result.get('status') == 'AUTHORIZED':
             self.tbk_metadata = result
-            self.paid = True
-            self.save()
+            self.status = "paid"
 
         else:
             self.tbk_metadata = result
-            self.save()
 
         return result

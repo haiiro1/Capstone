@@ -64,7 +64,7 @@ async def transaction_return(
             and result.get("status") == "AUTHORIZED"
         ):
             order.status = "paid"
-            activate_subscription(db, order.user_id, order)
+            activate_subscription(order.user_id, order, db)
             message = "Tu suscripción ha sido activada."
 
         elif result.get("status") == "FAILED":
