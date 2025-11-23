@@ -91,7 +91,7 @@ async def register(payload: RegisterInit, db: Session = Depends(get_db)):
             <div style="text-align:center">
                 <hr>
                 <p style="font-size:12px; color: #15c;">
-                    <a href="http://danbooru.donmai.us/" style="text-decoration:none;" target="_blank">🌱</a>
+                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" style="text-decoration:none;" target="_blank">🌱</a>
                     <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" target="_blank">PlantGuard</a> /
                     <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/privacidad" target="_blank">Privacidad</a> /
                     <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/ayuda" target="_blank">Contacto</a>
@@ -174,7 +174,7 @@ async def resend_verify(email: EmailStr, db: Session = Depends(get_db)):
             <div style="text-align:center">
                 <hr>
                 <p style="font-size:12px; color: #15c;">
-                    <a href="http://danbooru.donmai.us/" style="text-decoration:none;" target="_blank">🌱</a>
+                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" style="text-decoration:none;" target="_blank">🌱</a>
                     <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" target="_blank">PlantGuard</a> /
                     <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/privacidad" target="_blank">Privacidad</a> /
                     <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/ayuda" target="_blank">Contacto</a>
@@ -273,7 +273,7 @@ async def password_reset_init(
             <div style="text-align:center">
                 <hr>
                 <p style="font-size:12px; color: #15c;">
-                    <a href="http://danbooru.donmai.us/" style="text-decoration:none;" target="_blank">🌱</a>
+                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" style="text-decoration:none;" target="_blank">🌱</a>
                     <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" target="_blank">PlantGuard</a> /
                     <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/privacidad" target="_blank">Privacidad</a> /
                     <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/ayuda" target="_blank">Contacto</a>
