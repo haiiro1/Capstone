@@ -6,6 +6,7 @@ function Analytics() {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [result, setResult] = useState<PredictResponse | null>(null);
+  const [isLimitReached, setIsLimitReached] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -80,6 +81,7 @@ function Analytics() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setIsLimitReached(false);
 
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -89,7 +91,15 @@ function Analytics() {
       setResult(data);
     } catch (err: any) {
       console.error(err);
-      setError(err?.message ?? "model_couldnt_analyze_img");
+      if (
+        err.response?.status === 403 &&
+        err.response?.data?.detail === "daily_limit_reached"
+      ) {
+        setIsLimitReached(true);
+        setError("Has alcanzado tu límite diario gratuito (5 consultas).");
+      } else {
+        setError(err?.message ?? "model_couldnt_analyze_img");
+      }
     } finally {
       setLoading(false);
       abortRef.current = null;
@@ -197,12 +207,29 @@ function Analytics() {
                   <p className="text-muted small mt-3">Analizando imagen…</p>
                 </div>
               )}
-              {!loading && error && (
+              {!loading && isLimitReached && (
+                <div className="mt-3 text-center">
+                  <div className="alert alert-warning border-warning" role="alert">
+                    <h4 className="alert-heading fs-5 fw-bold">🔒 Límite Alcanzado</h4>
+                    <p className="small mb-3">
+                      Los usuarios gratuitos tienen un máximo de <strong>5 consultas diarias</strong>.
+                    </p>
+                    <hr />
+                    <p className="mb-0 small">
+                      Actualiza a PlantGuard Premium para diagnósticos ilimitados.
+                    </p>
+                  </div>
+                  <a href="/membresia" className="btn btn-primary w-100 fw-semibold shadow-sm">
+                    Obtener Premium
+                  </a>
+                </div>
+              )}
+              {!loading && error && !isLimitReached && (
                 <div className="alert alert-danger mt-3" role="alert">
                   {error}
                 </div>
               )}
-              {!loading && !result && !error && (
+              {!loading && !result && !error && !isLimitReached && (
                 <div className="text-muted">
                   Sube una imagen y presiona “Analizar”.
                 </div>
@@ -218,7 +245,7 @@ function Analytics() {
               {!loading &&
                 result &&
                 result.predictions.length > 0 &&
-                !error && (
+                !error && !isLimitReached && (
                   <div className="mt-2">
                     <p className="mb-1 text-muted small">Análisis</p>
                     {top1 && (

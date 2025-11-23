@@ -1,68 +1,146 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import MainContent from "../components/MainContent";
+import api from "../lib/api";
 
-type MembershipPlan = {
-  name: string;
-  price: string;
-};
-
-type Status = "processing" | "completed";
-
-type LocationState = {
-  status?: Status;
-  plan?: MembershipPlan;
-};
+interface PaymentStatusResponse {
+  status: string;
+  metadata: any;
+}
 
 export default function MembresiaEstado() {
   const navigate = useNavigate();
-  const { state } = useLocation() as { state: LocationState };
+  const [searchParams] = useSearchParams();
+  const { state } = useLocation();
 
-  const status: Status = state?.status ?? "processing";
-  const plan = state?.plan;
+  const orderId = searchParams.get("order_id");
+  const stateStatus = state?.status;
 
-  const isCompleted = status === "completed";
+  const [loading, setLoading] = useState(true);
+  const [displayStatus, setDisplayStatus] = useState<string | null>(null);
 
-  const title = isCompleted
-    ? "¡Tu membresía está activa!"
-    : "Procesando tu orden…";
+  useEffect(() => {
+    if (stateStatus === "active") {
+      setDisplayStatus("active");
+      setLoading(false);
+      return;
+    }
 
-  const subtitle = isCompleted
-    ? "Tu suscripción ya está configurada. Gracias por unirte a PlantGuard."
-    : "Esto puede tardar unos segundos, no cierres esta página.";
+    const verifyTransaction = async () => {
+      if (!orderId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data } = await api.get<PaymentStatusResponse>(
+          `/api/transaction/status/${orderId}`
+        );
+        setDisplayStatus(data.status);
+      } catch (error) {
+        console.error("Verification failed", error);
+        setDisplayStatus("error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    verifyTransaction();
+  }, [orderId, stateStatus]);
+
+  const getUIContent = () => {
+    if (loading)
+      return {
+        title: "Verificando...",
+        subtitle: "Estamos confirmando tu pago con el banco.",
+        icon: "🔄",
+      };
+
+    switch (displayStatus) {
+      case "paid":
+        return {
+          title: "Pago Exitoso!",
+          subtitle: `Tu orden #${orderId} fue confirmada y tu suscripción está activa.`,
+          icon: "✅",
+          action: () => navigate("/home"),
+          btnText: "Ir al Dashboard",
+          isSuccess: true,
+        };
+
+      case "active":
+        return {
+          title: "Membresía Activa!",
+          subtitle: "Ya tienes una suscripción vigente.",
+          icon: "🎉",
+          action: () => navigate("/home"),
+          btnText: "Ir al Dashboard",
+          isSuccess: true,
+        };
+
+      case "failed":
+      case "rejected":
+        return {
+          title: "Pago Fallido",
+          subtitle:
+            "El banco rechazó la transacción o anulaste la transacción.",
+          icon: "❌",
+          action: () => navigate("/membresia"),
+          btnText: "Intentar con otro medio de pago",
+          isSuccess: false,
+        };
+
+      case "pending":
+        return {
+          title: "Pago Pendiente",
+          subtitle:
+            "Aún no recibimos la confirmación del banco. Espera unos instantes.",
+          icon: "⏳",
+          action: () => window.location.reload(),
+          btnText: "Actualizar Estado",
+          isSuccess: false,
+        };
+
+      default:
+        return {
+          title: "Error de Verificación",
+          subtitle: "No pudimos encontrar la información de esta orden.",
+          icon: "❓",
+          action: () => navigate("/Help"),
+          btnText: "Contactar Soporte",
+          isSuccess: false,
+        };
+    }
+  };
+
+  const ui = getUIContent();
 
   return (
     <MainContent title="Estado de la Membresía">
-      <div className="container py-4 d-flex justify-content-center">
-        <div className="card shadow-sm text-center" style={{ maxWidth: 420 }}>
-          <div className="card-body">
+      <div className="container py-5 d-flex justify-content-center align-items-center">
+        <div
+          className="card shadow-lg border-0"
+          style={{ maxWidth: 450, width: "100%" }}
+        >
+          <div className="card-body text-center p-5">
+            <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>
+              {ui.icon}
+            </div>
 
-            {/* Título */}
-            <h5 className="fw-bold mb-2">{title}</h5>
-            <p className="text-muted small mb-3">{subtitle}</p>
+            <h3 className="fw-bold mb-3">{ui.title}</h3>
+            <p className="text-muted mb-4">{ui.subtitle}</p>
 
-            {/* Datos del plan */}
-            {plan && (
-              <div className="mb-4">
-                <p className="fw-semibold mb-1">
-                  Plan seleccionado: <span className="text-primary">{plan.name}</span>
-                </p>
-                <p className="text-muted">{plan.price}</p>
-              </div>
-            )}
-
-            {/* Botón Dashboard */}
-            <button
-              onClick={() => navigate("/home")}
-              className="btn btn-outline-primary w-100"
-            >
-              Ir al Dashboard
-            </button>
-
-            {/* Mensaje adicional cuando está procesando */}
-            {!isCompleted && (
-              <p className="text-muted small mt-3">
-                Si esto demora demasiado, revisa tu correo o vuelve más tarde.
-              </p>
+            <div className="d-grid gap-2">
+              <button
+                onClick={ui.action}
+                className={`btn btn-lg ${
+                  ui.isSuccess ? "btn-success" : "btn-primary"
+                }`}
+              >
+                {ui.btnText}
+              </button>
+            </div>
+            {orderId && (
+              <p className="small text-muted mt-3 mb-0">Order ID: {orderId}</p>
             )}
           </div>
         </div>
