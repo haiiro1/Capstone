@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useMemo, useRef, useState } from "react";
 import MainContent from "../components/MainContent";
 import { predictDisease, type PredictResponse } from "../lib/plantPredict";
 
@@ -10,6 +10,23 @@ function Analytics() {
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+
+  const sortedPreds = useMemo(() => {
+    if (!result?.predictions) return [];
+    return [...result.predictions].sort(
+      (a, b) => b.probability - a.probability
+    );
+  }, [result]);
+
+  function toggleExpand(id: string) {
+    setExpanded((e) => ({ ...e, [id]: !e[id] }));
+  }
+
+  function isHealthy(p: { title: string }) {
+    const t = p.title.toLowerCase();
+    return (t.includes("sano"));
+  }
 
   const onPickClick = useCallback(() => {
     inputRef.current?.click();
@@ -78,11 +95,7 @@ function Analytics() {
       abortRef.current = null;
     }
   }, [file]);
-
-  const top1 = useMemo(() => {
-    if (!result?.predictions?.length) return null;
-    return [...result.predictions].sort((a, b) => b.score - a.score)[0];
-  }, [result]);
+  const top1 = sortedPreds[0];
 
   return (
     <MainContent title="Analizar planta">
@@ -208,51 +221,129 @@ function Analytics() {
                 !error && (
                   <div className="mt-2">
                     <p className="mb-1 text-muted small">Análisis</p>
-                    {(() => {
-                      const top1 = [...result.predictions].sort(
-                        (a, b) => b.score - a.score
-                      )[0];
-                      return (
-                        <h4 className="mb-2">
-                          {top1?.label ?? "—"}{" "}
-                          {typeof top1?.score === "number" && (
-                            <span className="fs-6 text-muted">
-                              ({Math.round(top1.score * 100)}%)
-                            </span>
-                          )}
-                        </h4>
-                      );
-                    })()}
+                    {top1 && (
+                      <h4 className="mb-2">
+                        {top1.title}{" "}
+                        <span className="fs-6 text-muted">
+                          ({Math.round(top1.probability * 100)}%)
+                        </span>
+                      </h4>
+                    )}
                     <hr />
                     <p className="mb-1 text-muted small">Predicciones</p>
                     <div className="table-responsive">
                       <table className="table table-sm align-middle mb-0">
                         <thead>
                           <tr>
-                            <th>Enfermedades</th>
+                            <th>Enfermedad</th>
                             <th className="text-end">Confianza</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {[...result.predictions]
-                            .sort((a, b) => b.score - a.score)
-                            .map((p, idx) => (
-                              <tr key={`${p.label}-${idx}`}>
-                                <td>{p.label}</td>
-                                <td className="text-end">
-                                  {Math.round(p.score * 100)}%
-                                </td>
-                              </tr>
-                            ))}
+                          {sortedPreds.map((p, idx) => {
+                            const id = `${p.title}-${idx}`;
+                            const isTop = idx === 0;
+                            const isOpen = !!expanded[id];
+                            return (
+                              <Fragment key={id}>
+                                <tr>
+                                  <td>
+                                    {isTop ? (
+                                      <div className="d-flex align-items-center gap-2">
+                                        <span>{p.title}</span>
+                                        {!isHealthy(p) && p.severity ? (
+                                          <span className="badge bg-warning text-dark">{p.severity}</span>
+                                        ) : isHealthy(p) ? (
+                                          <span className="badge bg-success">Sana</span>
+                                        ) : null}
+                                      </div>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        className="btn btn-link p-0 text-start"
+                                        onClick={() => toggleExpand(id)}
+                                        aria-expanded={isOpen}
+                                        aria-controls={`rec-${id}`}
+                                        style={{ textDecoration: "none" }}
+                                      >
+                                        <span className="me-1" aria-hidden="true">
+                                          {isOpen ? "▾" : "▸"}
+                                        </span>
+                                        {p.title}
+                                        {!isHealthy(p) && p.severity ? (
+                                          <span className="badge bg-warning text-dark ms-2">{p.severity}</span>
+                                        ) : isHealthy(p) ? (
+                                          <span className="badge bg-success">Sana</span>
+                                        ) : null}
+                                      </button>
+                                    )}
+                                  </td>
+                                  <td className="text-end">
+                                    {Math.round(p.probability * 100)}%
+                                  </td>
+                                </tr>
+                                {!isTop && isOpen && (
+                                  <tr id={`rec-${id}`}>
+                                    <td colSpan={2}>
+                                      {p.advice?.length ? (
+                                        <ul className="small mb-0">
+                                          {p.advice.map((a, i) => (
+                                            <li key={i}>{a}</li>
+                                          ))}
+                                        </ul>
+                                      ) : (
+                                        <p className="small text-muted mb-0">
+                                          Sin recomendaciones específicas.
+                                        </p>
+                                      )}
+                                    </td>
+                                  </tr>
+                                )}
+                              </Fragment>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
-                    <details className="mt-3">
-                      <summary className="small text-muted">Ver JSON</summary>
-                      <pre className="mt-2 mb-0 small">
-                        {JSON.stringify(result, null, 2)}
-                      </pre>
-                    </details>
+                    {top1 && (
+                      <div className="mt-3">
+                        <p className="mb-1 text-muted small">Recomendación</p>
+                        {isHealthy(top1) ? (
+                          <div className="badge bg-success text-light mb-1">
+                            Tu planta parece sana. Sigue así!
+                          </div>
+                        ) : top1.severity && (
+                          <div className="mb-2">
+                            <span className="badge bg-warning text-dark">
+                              Severidad: {top1.severity}
+                            </span>
+                          </div>
+                        )}
+                        {top1.advice?.length ? (
+                          <ul className="small mb-0">
+                            {top1.advice.map((a, i) => (
+                              <li key={i}>{a}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="small text-muted mb-0">
+                            Sin recomendaciones específicas.
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    <div className="mt-3">
+                      <small className="text-muted d-block">
+                        {result.disclaimer || ""}
+                      </small>
+                      {result.date_created && (
+                        <small className="text-muted d-block">
+                          <hr />
+                          Analizado:{" "}
+                          {new Date(result.date_created).toLocaleString()}
+                        </small>
+                      )}
+                    </div>
                   </div>
                 )}
             </div>
