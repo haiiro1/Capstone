@@ -21,3 +21,9 @@ class PurchaseCreateResponse(BaseModel):
     created_at: datetime
     updated_at: Optional[datetime] = None
     tbk_metadata: Optional[dict[str, Any]] = None
+
+
+class SubscriptionStatusResponse(BaseModel):
+    plan_name: str
+    is_active: bool
+    expiry_date: Optional[str] = None

@@ -4,8 +4,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.exceptions import RequestValidationError
 
+from contextlib import asynccontextmanager
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from app.core.config import settings
 from app.api.routes import router as api_router
@@ -14,10 +16,26 @@ from app.api.routers.users import router as users_router
 from app.api.routers.weather import router as weather_router
 from app.api.routers.plant import router as plant_router
 from app.api.routers.payment import router as payment_router
+from app.api.routers.subscription import router as subscription_router
+from app.api.routers.debug import router as debug_router
 from app.db.session import SessionLocal
+from app.tasks.cron import cleanup_pending_orders, check_expired_subscriptions
 
 
-app = FastAPI(title="PlantGuard API", version="1.0.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(cleanup_pending_orders, 'interval', minutes=10)
+    scheduler.add_job(check_expired_subscriptions, 'interval', hours=1)
+    scheduler.start()
+    print("BG Scheduler initialized")
+
+    yield
+    scheduler.shutdown()
+    print("BG Scheduler Stopped")
+
+
+app = FastAPI(title="PlantGuard API", version="1.0.0", lifespan=lifespan)
 
 
 app.add_middleware(
@@ -70,6 +88,8 @@ app.include_router(auth_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
 app.include_router(weather_router, prefix="/api", tags=["Weather"])
 app.include_router(payment_router, prefix="/api", tags=["payment"])
+app.include_router(subscription_router, prefix="/api", tags=["subscription"])
+app.include_router(debug_router, prefix="/api", tags=["debug"])
 # --- Archivos estáticos (Revisar que exista la carpeta) ---
 # settings.MEDIA_URL_PREFIX debe empezar con "/" (ej. "/media")
 # settings.MEDIA_DIR debe existir en runtime

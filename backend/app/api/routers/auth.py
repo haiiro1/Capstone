@@ -79,7 +79,7 @@ async def register(payload: RegisterInit, db: Session = Depends(get_db)):
     html = f"""
         <div style="font-family:system-ui; margin:0px auto;max-width:600px;">
             <h1 style="text-align:center">
-                <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" target="_blank" style="text-decoration:none; color: #15c;">🌱 PlantGuard</a>
+                <a href="https://capstone-nu-cyan.vercel.app/" target="_blank" style="text-decoration:none; color: #15c;">🌱 PlantGuard</a>
             </h1>
             <h2>Hola, {payload.first_name}!</h2>
             <p>Bienvenid@ a PlantGuard! Hace click a el siguiente link para validar tu cuenta.</p>
@@ -91,10 +91,10 @@ async def register(payload: RegisterInit, db: Session = Depends(get_db)):
             <div style="text-align:center">
                 <hr>
                 <p style="font-size:12px; color: #15c;">
-                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" style="text-decoration:none;" target="_blank">🌱</a>
-                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" target="_blank">PlantGuard</a> /
-                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/privacidad" target="_blank">Privacidad</a> /
-                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/ayuda" target="_blank">Contacto</a>
+                    <a href="https://capstone-nu-cyan.vercel.app/" style="text-decoration:none;" target="_blank">🌱</a>
+                    <a href="https://capstone-nu-cyan.vercel.app/" target="_blank">PlantGuard</a> /
+                    <a href="https://capstone-nu-cyan.vercel.app/privacidad" target="_blank">Privacidad</a> /
+                    <a href="https://capstone-nu-cyan.vercel.app/ayuda" target="_blank">Contacto</a>
                 </p>
             </div>
         </div>
@@ -162,7 +162,7 @@ async def resend_verify(email: EmailStr, db: Session = Depends(get_db)):
     html = f"""
         <div style="font-family:system-ui; margin:0px auto;max-width:600px;">
             <h1 style="text-align:center">
-                <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" target="_blank" style="text-decoration:none; color: #15c;">🌱 PlantGuard</a>
+                <a href="https://capstone-nu-cyan.vercel.app/" target="_blank" style="text-decoration:none; color: #15c;">🌱 PlantGuard</a>
             </h1>
             <h2>Hola!</h2>
             <p>Bienvenid@ a PlantGuard! Hace click a el siguiente link para validar tu cuenta.</p>
@@ -174,10 +174,10 @@ async def resend_verify(email: EmailStr, db: Session = Depends(get_db)):
             <div style="text-align:center">
                 <hr>
                 <p style="font-size:12px; color: #15c;">
-                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" style="text-decoration:none;" target="_blank">🌱</a>
-                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" target="_blank">PlantGuard</a> /
-                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/privacidad" target="_blank">Privacidad</a> /
-                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/ayuda" target="_blank">Contacto</a>
+                    <a href="https://capstone-nu-cyan.vercel.app/" style="text-decoration:none;" target="_blank">🌱</a>
+                    <a href="https://capstone-nu-cyan.vercel.app/" target="_blank">PlantGuard</a> /
+                    <a href="https://capstone-nu-cyan.vercel.app/privacidad" target="_blank">Privacidad</a> /
+                    <a href="https://capstone-nu-cyan.vercel.app/ayuda" target="_blank">Contacto</a>
                 </p>
             </div>
         </div>
@@ -258,7 +258,7 @@ async def password_reset_init(
     html = f"""
         <div style="font-family:system-ui; margin:0px auto;max-width:600px;">
             <h1 style="text-align:center">
-                <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" target="_blank" style="text-decoration:none; color: #15c;">🌱 PlantGuard</a>
+                <a href="https://capstone-nu-cyan.vercel.app/" target="_blank" style="text-decoration:none; color: #15c;">🌱 PlantGuard</a>
             </h1>
             <h2>Hola, {user.first_name}!</h2>
             <p>Has solicitado que se restablezca tu contraseña. Haz clic en el siguiente link para crear una nueva:</p>
@@ -273,10 +273,10 @@ async def password_reset_init(
             <div style="text-align:center">
                 <hr>
                 <p style="font-size:12px; color: #15c;">
-                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" style="text-decoration:none;" target="_blank">🌱</a>
-                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/" target="_blank">PlantGuard</a> /
-                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/privacidad" target="_blank">Privacidad</a> /
-                    <a href="https://capstone-git-main-haiiro1s-projects.vercel.app/ayuda" target="_blank">Contacto</a>
+                    <a href="https://capstone-nu-cyan.vercel.app/" style="text-decoration:none;" target="_blank">🌱</a>
+                    <a href="https://capstone-nu-cyan.vercel.app/" target="_blank">PlantGuard</a> /
+                    <a href="https://capstone-nu-cyan.vercel.app/privacidad" target="_blank">Privacidad</a> /
+                    <a href="https://capstone-nu-cyan.vercel.app/ayuda" target="_blank">Contacto</a>
                 </p>
             </div>
         </div>

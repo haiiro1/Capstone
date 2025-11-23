@@ -2,17 +2,23 @@ import os
 import httpx
 from datetime import datetime, timezone
 from typing import Any, Dict, List
-from sqlalchemy import func, case
+from sqlalchemy import and_, func, case, select
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Query, UploadFile, File, HTTPException, Request, Depends
-from app.schemas.plant import PredictionOut, PredictOut, PredictionRecordOut, PredictSummaryOut
-from app.db.models import PredictionRecord, User
+from app.schemas.plant import (
+    PredictionOut,
+    PredictOut,
+    PredictionRecordOut,
+    PredictSummaryOut,
+)
+from app.db.models import PredictionRecord, Subscription, User
 from app.api.routers.auth import get_current_user, get_db
 
 router = APIRouter(prefix="/plant", tags=["plant"])
 PREDICT_URL = os.getenv("PREDICT_URL")
 PREDICT_TIMEOUT = float(os.getenv("PREDICT_TIMEOUT", "60"))
 PROB_CUT = 0.01
+FREE_DAILY_LIMIT = 5
 
 
 def _as_list(x) -> List[str]:
@@ -30,6 +36,38 @@ async def proxy_predict(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    active_sub = (
+        db.execute(
+            select(Subscription).where(
+                and_(
+                    Subscription.user_id == current_user.id,
+                    Subscription.is_active == True,
+                )
+            )
+        )
+        .scalars()
+        .first()
+    )
+
+    if not active_sub:
+        today_start = datetime.now(timezone.utc).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+
+        usage_count = db.scalar(
+            select(func.count())
+            .select_from(PredictionRecord)
+            .where(
+                and_(
+                    PredictionRecord.user_id == current_user.id,
+                    PredictionRecord.date_created >= today_start,
+                )
+            )
+        )
+
+        if usage_count >= FREE_DAILY_LIMIT:
+            raise HTTPException(status_code=403, detail="daily_limit_reached")
+
     try:
         contents = await file.read()
         if await request.is_disconnected():
@@ -127,7 +165,7 @@ async def get_predict_history(
 @router.get("/predict/summary", response_model=PredictSummaryOut)
 def get_predict_summary(
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
     # this entire call is only for the home section, to finally remove the static stuff
     # this could be a boolean, but i dont feel like changing the db again currently, so this will do.
@@ -135,14 +173,11 @@ def get_predict_summary(
         (func.trim(func.lower(PredictionRecord.title)) == "sano", 1),
         else_=0,
     )
-    query = (
-        db.query(
-            func.count(PredictionRecord.id),
-            func.sum(healthy_case),
-            func.avg(PredictionRecord.probability),
-        )
-        .filter(PredictionRecord.user_id == current_user.id)
-    )
+    query = db.query(
+        func.count(PredictionRecord.id),
+        func.sum(healthy_case),
+        func.avg(PredictionRecord.probability),
+    ).filter(PredictionRecord.user_id == current_user.id)
     # simple math to fill up our summary schema
     total_count, healthy_sum, avg_conf = query.one()
     total_count = int(total_count or 0)

@@ -35,6 +35,12 @@ interface WeatherResponse {
   weather: WeatherData;
 }
 
+interface SubscriptionStatus {
+  plan_name: string;
+  is_active: boolean;
+  expiry_date?: string | null;
+}
+
 const LS_USER = "pg_user";
 const LS_PROFILE = "pg_profile";
 
@@ -42,13 +48,17 @@ function Profile() {
   const [user, setUser] = useState<User | null>(null);
   const [extras, setExtras] = useState<ProfileExtras>({});
   const [showPrefs, setShowPrefs] = useState(false);
+  const [subStatus, setSubStatus] = useState<SubscriptionStatus | null>(null);
+  const [loadingSub, setLoadingSub] = useState(true);
   // soporte avatar
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const API_ORIGIN = useMemo(() => {
     try {
-      return new URL(import.meta.env.VITE_API_URL || "http://localhost:8000/api").origin;
+      return new URL(
+        import.meta.env.VITE_API_URL || "http://localhost:8000/api"
+      ).origin;
     } catch {
       return "http://localhost:8000";
     }
@@ -185,6 +195,25 @@ function Profile() {
     } catch {}
   };
 
+  // subscription stuff
+  useEffect(() => {
+    const fetchSubStatus = async () => {
+      try {
+        const { data } = await api.get<SubscriptionStatus>(
+          "/api/subscription/status"
+        );
+        setSubStatus(data);
+      } catch (error) {
+        console.error("Could not fetch subscription status", error);
+        setSubStatus({ plan_name: "Free", is_active: false });
+      } finally {
+        setLoadingSub(false);
+      }
+    };
+
+    fetchSubStatus();
+  }, []);
+
   // subir avatar
   const handleAvatarChange = async (file?: File) => {
     if (!file) return;
@@ -220,7 +249,12 @@ function Profile() {
                   <label
                     htmlFor="avatarInput"
                     className="d-inline-flex align-items-center justify-content-center rounded-circle bg-body border shadow-sm"
-                    style={{ width: 80, height: 80, overflow: "hidden", cursor: "pointer" }}
+                    style={{
+                      width: 80,
+                      height: 80,
+                      overflow: "hidden",
+                      cursor: "pointer",
+                    }}
                     role="button"
                     tabIndex={0}
                   >
@@ -229,19 +263,26 @@ function Profile() {
                         key="preview"
                         src={avatarPreview}
                         alt="preview"
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
                       />
                     ) : fullAvatar ? (
                       <img
                         key={fullAvatar || "noavatar"}
                         src={fullAvatar || ""}
                         alt="avatar"
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
                       />
                     ) : (
-
-
-                      <span className="fs-3 fw-bold text-secondary">{initials}
+                      <span className="fs-3 fw-bold text-secondary">
+                        {initials}
                         {initials || "PG"}
                       </span>
                     )}
@@ -268,6 +309,10 @@ function Profile() {
                     <small className="text-muted d-block">EMAIL</small>
                     <span>{user?.email ?? "—"}</span>
                   </div>
+                  <div>
+                    <small className="text-muted d-block">Plan</small>
+                    <span className="badge bg-secondary">{subStatus?.plan_name || "Free"}</span>
+                  </div>
                 </div>
               </div>
 
@@ -290,7 +335,9 @@ function Profile() {
                   />
                 </div>
                 <div className="col-12 mb-3">
-                  <label className="form-label">Cultivos principales (máx 5, separados por coma)</label>
+                  <label className="form-label">
+                    Cultivos principales (máx 5, separados por coma)
+                  </label>
                   <input
                     className="form-control"
                     placeholder="Tomate, Lechuga, Papa"
@@ -311,7 +358,10 @@ function Profile() {
                   <h6 className="text-muted small">🌱 CULTIVOS PRINCIPALES</h6>
                   <div className="mt-3">
                     {extras.crops.map((c) => (
-                      <span key={c} className="badge bg-secondary me-2 mb-2 p-2">
+                      <span
+                        key={c}
+                        className="badge bg-secondary me-2 mb-2 p-2"
+                      >
                         {c}
                       </span>
                     ))}
@@ -329,27 +379,42 @@ function Profile() {
               <h5 className="card-title">Clima de hoy</h5>
               <div className="text-center my-4">
                 {loading && <p className="text-muted">Cargando clima...</p>}
-                {error && <div className="alert alert-warning py-2">{error}</div>}
+                {error && (
+                  <div className="alert alert-warning py-2">{error}</div>
+                )}
                 {weather && (
                   <div className="d-flex align-items-center">
                     <img
                       src={`https://openweathermap.org/img/wn/${weather.icon}@4x.png`}
                       alt={weather.condition}
-                      style={{ width: "100px", height: "100px", imageRendering: "pixelated" }}
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        imageRendering: "pixelated",
+                      }}
                     />
                     <div className="ms-3">
-                      <h2 className="display-4 fw-bold">{Math.round(weather.temp)}°C</h2>
-                      <p className="lead text-capitalize mb-0">{weather.condition}</p>
+                      <h2 className="display-4 fw-bold">
+                        {Math.round(weather.temp)}°C
+                      </h2>
+                      <p className="lead text-capitalize mb-0">
+                        {weather.condition}
+                      </p>
                     </div>
                     <div className="ms-auto text-end">
                       <p className="mb-1">Humedad: {weather.humidity}%</p>
-                      <p className="mb-0">Viento: {Math.round(weather.wind_speed)} km/h</p>
+                      <p className="mb-0">
+                        Viento: {Math.round(weather.wind_speed)} km/h
+                      </p>
                     </div>
                   </div>
                 )}
               </div>
               <div className="d-grid">
-                <button className="btn btn-success" onClick={() => setShowPrefs(true)}>
+                <button
+                  className="btn btn-success"
+                  onClick={() => setShowPrefs(true)}
+                >
                   Configurar alertas
                 </button>
               </div>
