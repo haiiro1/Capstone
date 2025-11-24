@@ -1,0 +1,99 @@
+{
+    "Tomato___Bacterial_spot": {
+        "title": "Mancha bacteriana",
+        "severity": "media",
+        "advice": [
+            "Eliminar hojas/frutos muy afectados y destruir residuos.",
+            "Evitar riego por aspersión; reducir salpicaduras.",
+            "Rotación 2–3 años y semilla/plántulas certificadas.",
+            "Aplicar cobres/bactericidas registrados preventivos tras lluvias."
+        ]
+    },
+    "Tomato___Early_blight": {
+        "title": "Tizón temprano",
+        "severity": "media",
+        "advice": [
+            "Retirar hojas inferiores con lesiones; mejorar ventilación.",
+            "Evitar mojado foliar; riego por goteo.",
+            "Fungicidas protectantes (clorotalonil/mancozeb) en preventivo; alternar modos de acción.",
+            "Nutrición balanceada; evitar estrés de N/K."
+        ]
+    },
+    "Tomato___healthy": {
+        "title": "Sano",
+        "severity": "baja",
+        "advice": [
+            "Mantener monitoreo semanal.",
+            "Riego por goteo y buena ventilación.",
+            "Eliminar malezas y residuos; rotación de cultivos.",
+            "Uso preventivo de productos solo si el riesgo/condiciones lo justifican."
+        ]
+    },
+    "Tomato___Late_blight": {
+        "title": "Tizón tardío",
+        "severity": "alta (rápida dispersión)",
+        "advice": [
+            "Eliminar focos iniciales; no compostar material enfermo.",
+            "Aplicar fungicidas sistémicos/antiesporulantes según registro local (p. ej., ciazofamida, mandipropamida, cimoxanilo) alternando FRAC.",
+            "Protección previa a eventos de alta humedad/bajas T°.",
+            "Evitar riego nocturno; mejorar circulación de aire."
+        ]
+    },
+    "Tomato___Leaf_Mold": {
+        "title": "Moho de la hoja",
+        "severity": "media",
+        "advice": [
+            "Disminuir humedad en invernadero (ventilación, densidad de plantas).",
+            "Remover hojas viejas afectadas.",
+            "Fungicidas registrados (p. ej., estrobilurinas/triazoles) alternando FRAC."
+        ]
+    },
+    "Tomato___Septoria_leaf_spot": {
+        "title": "Mancha foliar por Septoria",
+        "severity": "media",
+        "advice": [
+            "Eliminar hojas infectadas temprano; higiene de herramientas.",
+            "Evitar mojado foliar; riego dirigido.",
+            "Fungicidas protectantes/sistémicos registrados; alternar modos de acción.",
+            "Rotación y eliminación de residuos post-cosecha."
+        ]
+    },
+    "Tomato___Spider_mites Two-spotted_spider_mite": {
+        "title": "Ácaro rojo de dos manchas",
+        "severity": "media",
+        "advice": [
+            "Monitoreo en envés de hojas; umbral bajo en clima seco/caluroso.",
+            "Favorecer control biológico (fitoseidos); evitar piretroides de amplio espectro.",
+            "Aplicar acaricidas específicos rotando IRAC; cubrir bien el envés.",
+            "Reducir polvo y estrés hídrico."
+        ]
+    },
+    "Tomato___Target_Spot": {
+        "title": "Mancha de tiro (Corynespora/Alternaria)",
+        "severity": "media",
+        "advice": [
+            "Eliminar hojas con lesiones; mejorar ventilación.",
+            "Fungicidas registrados protectantes/sistémicos; alternar FRAC.",
+            "Evitar exceso de humedad y densidades altas."
+        ]
+    },
+    "Tomato___Tomato_mosaic_virus": {
+        "title": "Virus del mosaico del tomate (ToMV)",
+        "severity": "media-alta (no hay cura)",
+        "advice": [
+            "Remover plantas infectadas; desinfectar herramientas y manos.",
+            "Usar semillas resistentes/tratadas y plántulas certificadas.",
+            "Control estricto de higiene; evitar tabaquismo en manejo (TMV)."
+        ]
+    },
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
+        "title": "Virus del rizado amarillo de la hoja (TYLCV)",
+        "severity": "alta (vector: mosca blanca)",
+        "advice": [
+            "Remover plantas con síntomas; manejar poblaciones de mosca blanca.",
+            "Mallas/invernaderos con exclusión; trampas cromáticas.",
+            "Material vegetal resistente/tolerante; manejo de malezas hospederas.",
+            "Insecticidas registrados y rotación IRAC cuando corresponda."
+        ]
+    }
+}
