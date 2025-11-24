@@ -402,22 +402,40 @@ Tomando el usuario actual de manera automatica como parametro, este endpoint ent
 ### Users
 `PATCH /api/users/me`
 
-Placeholder
+Este endpoint permite actualizar parcialmente el perfil del usuario autenticado.
+Toma el *current_user* desde el token JWT y recibe un cuerpo JSON con los campos que se quieran modificar.
+
+Campos soportados (todos opcionales):
+```json
+{
+  "company": "string",
+  "location": "string",
+  "crops": ["tomate", "arándano"],
+  "theme": "light | dark | system"
+}
 
 ```
+
+- Solo se actualizan los campos presentes en el payload.
+
+- El email y el id no pueden cambiarse desde este endpoint.
+
+- Devuelve el usuario actualizado en el mismo schema que GET /api/auth/me.
+
+```json
+
 {
   "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
   "email": "user@example.com",
-  "first_name": "string",
-  "last_name": "string",
-  "theme": "string",
-  "company": "string",
-  "location": "string",
-  "crops": [
-    "string"
-  ],
-  "avatar_url": "string"
+  "first_name": "Sofía",
+  "last_name": "Alfaro",
+  "theme": "dark",
+  "company": "Mi campo",
+  "location": "Santiago, Chile",
+  "crops": ["tomate", "frutilla"],
+  "avatar_url": "/media/avatars/uuid.png"
 }
+
 ```
 
 `PATCH /api/users/me/theme`
@@ -426,7 +444,44 @@ Este endpoint toma 'theme' como parametro, esto para configurar el tipo de palet
 
 `POST /api/users/me/avatar`
 
-Placeholder
+Este endpoint permite subir o actualizar el avatar del usuario.
+
+- Método: `multipart/form-data`
+- Parámetro: `file` (imagen)
+- Requiere autenticación (JWT)
+
+#### Validaciones
+- Solo se aceptan archivos de tipo imagen (jpg, jpeg, png, webp, etc.)
+- El tamaño máximo permitido está definido por la variable de entorno `MAX_IMAGE_MB`
+  **Por defecto: 10 MB**
+- El archivo se guarda temporalmente en `MEDIA_DIR` (`storage/uploads/avatars/`)
+
+#### Importante (NeonDB — plan gratuito)
+La base de datos Neon en su plan gratuito **purga los archivos temporales en ~5 minutos**, por lo tanto:
+
+- El archivo del avatar **solo se mantiene aprox. 5 minutos** accesible desde la URL.
+- Después de ese tiempo, la entrada `avatar_url` sigue existiendo en la base de datos,
+  **pero el archivo ya no está disponible** en el storage remoto.
+- La URL queda como referencia, pero ya no apunta a un archivo real.
+
+##### Flujo
+1. El backend valida el archivo y su tamaño.
+2. Guarda la imagen en `MEDIA_DIR` con un nombre único (UUID).
+3. Actualiza `avatar_url` del usuario con `/media/avatars/<archivo>.png`.
+4. Devuelve el perfil del usuario con la nueva URL.
+
+###### Example response
+```json
+"id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+"email": "user@example.com",
+"first_name": "Sofía",
+"last_name": "Alfaro",
+"theme": "dark",
+"company": "Mi campo",
+"location": "Santiago, Chile",
+"crops": ["tomate"],
+"avatar_url": "/media/avatars/3fa85f64-5717-4562-b3fc-2c963f66afa6.png"
+```
 
 `GET /api/users/me/prefs`
 
@@ -557,17 +612,108 @@ Como response, simplemente se devuelve un mensaje generico que indica que se rec
   "message": "Recibirás un correo de verificación en breve. Revisa tu carpeta de SPAM en caso de no encontrarlo en tu inbox."
 }
 ```
+
 `POST /api/auth/login`
 
-Placeholder
+Endpoint para iniciar sesión y obtener tokens JWT.
+
+- Método: POST
+
+- Cuerpo esperado (JSON):
+
+```json
+{
+  "email": "user@example.com",
+  "password": "string"
+}
+```
+
+Flujo general:
+
+1. Busca al usuario por email.
+
+2. Verifica la contraseña usando el sistema de hashing definido en core/security.py.
+
+3. Verifica que la cuenta esté verificada/activa.
+
+4. Genera un access token (JWT de corta duración) y un refresh token (mayor duración).
+
+5. Devuelve el token de acceso y la información básica del usuario.
+Dependiendo de la implementación, el refresh token puede devolverse en el cuerpo o setearse como cookie HTTP-only.
+
+Este access token se utiliza luego en los headers como:
+```
+Authorization: Bearer <access_token>
+```
+para acceder a los endpoints protegidos.
+
+##### Example response
+
+```json
+{
+  "access_token": "jwt-access-token",
+  "token_type": "bearer",
+  "user": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "email": "user@example.com",
+    "first_name": "Sofía",
+    "last_name": "Alfaro",
+    "theme": "dark",
+    "company": "Mi campo",
+    "location": "Santiago, Chile",
+    "crops": ["tomate"],
+    "avatar_url": "/media/avatars/uuid.png"
+}
+```
 
 `POST /api/auth/refresh`
 
-Placeholder
+Permite obtener un nuevo access token a partir de un refresh token válido.
+
+- El refresh token se obtiene en el login (ya sea por cookie o en el body, según la implementación concreta).
+
+- El endpoint valida que el refresh token:
+
+  - No esté expirado.
+
+  - No haya sido invalidado/revocado.
+
+- Si es válido, genera un nuevo access token y lo devuelve al usuario.
+
+#### example response
+
+```json
+{
+  "access_token": "nuevo-jwt-access-token",
+  "token_type": "bearer"
+}
+```
+
+Sirve para mantener la sesión del usuario sin pedirle credenciales nuevamente mientras el refresh token siga siendo válido.
 
 `POST /api/auth/logout`
 
-Placeholder
+Endpoint para cerrar sesión de forma explícita.
+
+Flujo general:
+
+1. Toma el usuario autenticado y/o el refresh token asociado.
+
+2. Marca el refresh token como inválido o lo elimina del almacenamiento donde se lleve el registro (si aplica).
+
+3. En caso de usar cookies, limpia la cookie de refresh en la respuesta.
+
+4. Devuelve un mensaje confirmando el cierre de sesión.
+
+#### Example response
+
+```json
+{
+  "message": "Sesión cerrada correctamente."
+}
+```
+
+Tras llamar a este endpoint, el usuario debe volver a loguearse para obtener nuevos tokens.
 
 `GET /api/auth/me`
 
