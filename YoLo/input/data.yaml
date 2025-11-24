@@ -1,6 +1,0 @@
-train: ../train/images
-val: ../valid/images
-test: ../test/images
-
-nc: 7
-names: ['Mancha bacteriana', 'Tizón temprano', 'Sano', 'Tizón tardío', 'Moho de la hoja', 'Mancha de tiro', 'Mancha negra']
