@@ -8,10 +8,11 @@ Las razones son las siguientes:
 - El plan gratuito incluye **1.000 requests por día**, lo cual es más que suficiente para las pruebas iniciales y para manejar clima actual + forecast en un MVP.
 - Usaré principalmente:
   - **Clima actual** por lat/lon → para mostrar en la pantalla de alertas.
-  - **Forecast básico** de 5 días con pasos de 3 horas → para anticipar lluvia, heladas o calor.
+  - **Forecast básico** de 4 días con pasos de 3 horas → para anticipar lluvia, heladas o calor.
   - Variables como **temperatura, humedad, viento, precipitación** que son críticas para el cuidado de cultivos.
 - Tomé esta decisión porque OpenWeatherMap es un proveedor confiable, con buena documentación, y me permite **probar rápidamente** sin costos asociados.
 - Si el proyecto evoluciona a una etapa profesional, se evaluará migrar a un plan pago o a un esquema híbrido con otros proveedores para cubrir mayor volumen y funcionalidades avanzadas.
+- Tambien hacemos uso de las APIs ofrecidas por **Google Maps Platform**, para permitir al usuario ingresar su dirección, la cual se convertira a los parametros requeridos por OWM para realizar sus predicciones.
 
 ---
 
@@ -27,11 +28,12 @@ Las razones son las siguientes:
 
 ## Backend (FastAPI en Render)
 - **Servicio interno `weather.py`:** conecta con OWM usando la API key.
+- **Uso de APIs externas:** Utilizamos Geocoding y autocomplete de Google Maps Platform para tomar la direccion de cada usuario y convertirla a lat/lon, lo cual es usado por OWM para las predicciones del tiempo.
 - **Endpoints previstos:**
-  - `GET /api/alerts/weather/now?lat&lon` → clima actual normalizado.
-  - `GET /api/alerts/weather/forecast?lat&lon&hours=24` → pronóstico horario.
-  - (luego) `GET /api/alerts/evaluate?lat&lon` → devuelve alertas según umbrales.
-- **Manejo de API key:** variable de entorno `OPENWEATHER_API_KEY` (solo en backend).
+  - `GET /api/alerts/weather/now` → clima actual normalizado.
+  - `GET /api/alerts/weather/forecast` → pronóstico de tiempo.
+  - `GET /api/alerts/events` → devuelve alertas según las preferencias asignadas por el usuario.
+- **Manejo de API keys:** variables de entornos `OPENWEATHER_API_KEY` y `GOOGLE_MAPS_API_KEY` (solo en backend).
 - **Caché:** TTL 2–5 min en memoria para reducir consumo.
 
 ---
@@ -39,31 +41,22 @@ Las razones son las siguientes:
 ## Variables de entorno (Render)
 ```
 OPENWEATHER_API_KEY=xxxxxx
-WEATHER_PROVIDER=openweather
-WEATHER_LANG=es
-WEATHER_UNITS=metric
+GOOGLE_MAPS_API_KEY=xxxxxx
+GEOCODE_URL=xxxxxx
+OPENWEATHER_URL=xxxxxx
+OPENWEATHER_URL_FORECAST=xxxxxx
 ```
 
 ---
 
 ## Modelos de datos
-**Tabla `user_weather_prefs`:**
+**Tabla `UserWeatherPrefs`:**
+- id
 - user_id
-- lat, lon
-- frost_threshold_c (ej. ≤ 1°C)
-- heatwave_threshold_c (ej. ≥ 32°C)
-- rain_mm_threshold (ej. ≥ 2mm/h)
-- wind_kph_threshold (ej. ≥ 40 km/h)
-- notify_hours (ej. 07:00–22:00)
-- enabled
-
-**Tabla `weather_alerts`:**
-- id, user_id
-- type (rain, frost, heat, wind, etc.)
-- level (info, warning, critical)
-- observed_at, valid_until
-- payload_json
-- delivered (bool), delivered_at
+- dangerous_frost_threshold
+- dangerous_temp_threshold
+- rain_mm_threshold
+- wind_kph_threshold
 
 ---
 
@@ -77,7 +70,7 @@ WEATHER_UNITS=metric
 - Consulta siempre a **backend** (`/api/alerts/weather/...`).
 - **Pantalla Alertas**:
   - Tarjeta con clima actual (temp, humedad, viento, condición).
-  - Forecast 24–48h (gráfico simple).
+  - Forecast (4 dias).
   - Lista de alertas activas (ej. “⚠️ Posible helada esta noche”).
   - Preferencias de usuario (umbrales, ubicación, horario notificaciones).
 

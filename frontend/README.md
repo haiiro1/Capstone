@@ -15,6 +15,7 @@
 ```
 VITE_API_URL=http://localhost:8000
 VITE_APP_NAME=PlantGuard
+VITE_GOOGLE_API_KEY=[KEY]
 ```
  En Vite, las variables deben comenzar con VITE_ para estar disponibles en el cliente.
 
@@ -58,45 +59,82 @@ npm run preview
 ## Estructura del proyecto
 
 ```
-frontend/
-├─ public/
-├─ src/
-│  ├─ assets/
-│  │  └─ react.svg
-│  ├─ components/
-│  │  ├─ AuthPanel.tsx
-│  │  ├─ Footer.tsx
-│  │  ├─ MainContent.tsx
-│  │  └─ NavBars.tsx
-│  ├─ Layouts/
-│  │  ├─ AuthLayout.tsx
-│  │  └─ MainLayout.tsx
-│  ├─ lib/
-│  │  ├─ api.ts
-│  │  └─ AuthContext.tsx
-│  ├─ pages/
-│  │  ├─ Auth/
-│  │  ├─ Alerts.tsx
-│  │  ├─ Analytics.tsx
-│  │  ├─ History.tsx
-│  │  ├─ Home.tsx
-│  │  ├─ Profile.tsx
-│  │  └─ Upload.tsx
-│  ├─ utils/
-│  │  └─ names.ts
-│  └─ validation/
-│     └─ userSchemas.ts
-├─ App.tsx
-├─ App.css
-├─ index.css
-├─ main.tsx
-├─ vite-env.d.ts
-├─ index.html
-├─ package.json
-├─ tsconfig.json
-├─ tsconfig.app.json
-├─ tsconfig.node.json
-└─ vite.config.ts
+frontend
+├─ public
+│  └─ vite.svg
+├─ src
+│  ├─ api
+│  │  └─ weatherPrefs.ts
+│  ├─ assets
+│  │  └─ react.svg
+│  ├─ components
+│  │  ├─ AuthPanel.tsx
+│  │  ├─ Footer.tsx
+│  │  ├─ GoogleMaps.tsx
+│  │  ├─ MainContent.tsx
+│  │  ├─ Navbar.tsx
+│  │  ├─ ThemeToggleSwitch.tsx
+│  │  └─ WeatherPrefs.tsx
+│  ├─ contexts
+│  │  ├─ LocationContext.tsx
+│  │  └─ ThemeProvider.tsx
+│  ├─ hooks
+│  │  ├─ usePredictSummary.ts
+│  │  └─ userWeatherAlerts.ts
+│  ├─ Layouts
+│  │  ├─ AuthLayout.tsx
+│  │  ├─ MainLayout.tsx
+│  │  └─ SimpleLayout.tsx
+│  ├─ lib
+│  │  ├─ AuthContext.tsx
+│  │  ├─ api.ts
+│  │  ├─ plantPredict.ts
+│  │  ├─ predictHistory.ts
+│  │  └─ predictSummary.ts
+│  ├─ pages
+│  │  ├─ Alerts.tsx
+│  │  ├─ Analytics.tsx
+│  │  ├─ Auth
+│  │  │  ├─ ForgotPassword.tsx
+│  │  │  ├─ Login.tsx
+│  │  │  ├─ ReVerify.tsx
+│  │  │  ├─ Register.tsx
+│  │  │  ├─ ResetPassword.tsx
+│  │  │  └─ Verify.tsx
+│  │  ├─ ConfirmarMembresia.tsx
+│  │  ├─ Faq.tsx
+│  │  ├─ Help.tsx
+│  │  ├─ History.tsx
+│  │  ├─ Home.tsx
+│  │  ├─ Membresia.tsx
+│  │  ├─ MembresiaEstado.tsx
+│  │  ├─ Privacy.tsx
+│  │  ├─ Profile.tsx
+│  │  ├─ Terms.tsx
+│  │  └─ Upload.tsx
+│  ├─ types
+│  │  └─ weather.ts
+│  ├─ utils
+│  │  ├─ GoogleMaps.ts
+│  │  └─ names.ts
+│  ├─ validation
+│  │  ├─ password.ts
+│  │  └─ userSchemas.ts
+│  ├─ App.css
+│  ├─ App.tsx
+│  ├─ index.css
+│  ├─ main.tsx
+│  └─ vite-env.d.ts
+├─ README.md
+├─ eslint.config.js
+├─ index.html
+├─ package-lock.json
+├─ package.json
+├─ tsconfig.app.json
+├─ tsconfig.json
+├─ tsconfig.node.json
+├─ vercel.json
+└─ vite.config.ts
 ```
 
 ## Integración con el backend
@@ -110,10 +148,23 @@ frontend/
 
 - Puerto ocupado: ejecuta `npm run dev -- --port 5174` o libera el 5173.
 
-## Rutas principales
-- `/` → Dashboard/Home
+## Rutas
+### Auth
+- `/register`
+- `/forgot-password`
+- `/reset-password`
+- `/verify`
+- `/verify/resend`
 
-- `/login` y `/register` (dentro de `pages/Auth/`)
+### Paginas principales
+- `/` (Login/Home)
+- `/home`
+- `/analizar`
+- `/historial`
+- `/alertas`
+- `/perfil`
 
-- `/alerts`, `/analytics`, `/history`, `/profile`, `/upload`
-
+### Membresía
+- `/membresia`
+- `/membresia/confirmar`
+- `/membresia/estado`

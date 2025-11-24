@@ -45,8 +45,9 @@ Este proyecto combina tecnologías modernas para crear una solución robusta, es
 | **Autenticación (API)** | `JWT (Tokens)` `Passlib`         | Manejo de registro, login y sesiones seguras mediante tokens JWT.       |
 | **Base de Datos** | `PostgreSQL` `NeonDB`                        | Una base de datos relacional potente para gestionar usuarios y análisis. |
 | **Modelo de IA** | `Mobilenet v3 Small`    | El modelo CNN que entrenamos para la detección de enfermedades/condiciones.  |
-| **API Externa** | `OpenWeatherMap` `Google Maps Platform`                              | Para obtener los datos del clima en tiempo real.                         |
+| **API Externa** | `OpenWeatherMap` `Google Maps Platform`                                | Para obtener los datos del clima en tiempo real.                         |
 | **SMTP Relay** | `Maileroo`                              | Utilizado para hacer el envio automatico de e-mails.                         |
+| **Payment Processor** | `Webpay Plus`                              | Utilizado para permitir transacciones dentro del sitio.                     |
 | **Despliegue** | `Vercel` (Frontend) y `Render` (Backend)     | Para un despliegue continuo y una infraestructura moderna en la nube.    |
 
 ---
@@ -61,7 +62,7 @@ Tras el primer mes de desarrollo, el proyecto ha alcanzado hitos importantes en 
 | ✅ **Diseño de Arquitectura y BPMN** | Completado  |
 | ✅ **Desarrollo Frontend Completo** | Completado  |
 | ✅ **Integración de API de Clima** | Completado  |
-| 🚧 **Desarrollo Backend (API)** | En Progreso (90%/100%) |
+| ✅ **Desarrollo Backend (API)** | Completado |
 | ✅ **Entrenamiento del Modelo de IA**| Completado |
 | ⏳ **Pruebas de Integración** | Pendiente   |
 

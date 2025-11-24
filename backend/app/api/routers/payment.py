@@ -16,6 +16,7 @@ from app.utils.utils import activate_subscription
 
 
 FRONTEND_URL = os.getenv("VITE_FRONTEND_URL")
+PAYMENT_AMOUNT = Decimal("9990.00")
 
 router = APIRouter(prefix="/transaction", tags=["payment"])
 
@@ -92,7 +93,7 @@ async def create_transaction(
 
     order = PurchaseOrder(
         user_id=user.id,
-        amount=Decimal("9990.00"),
+        amount=PAYMENT_AMOUNT,
         token_ts=datetime.now(timezone.utc),
     )
     db.add(order)
